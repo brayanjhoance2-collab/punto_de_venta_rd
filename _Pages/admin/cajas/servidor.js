@@ -20,9 +20,19 @@ export async function obtenerCajaActiva() {
         connection = await db.getConnection()
 
         const [cajas] = await connection.execute(
-            `SELECT * FROM cajas 
-            WHERE empresa_id = ? AND usuario_id = ? AND estado = 'abierta'
-            ORDER BY fecha_apertura DESC
+            `SELECT 
+                c.*,
+                COALESCE(SUM(CASE WHEN v.estado = 'emitida' AND v.caja_id = c.id THEN v.total ELSE 0 END), 0) as total_ventas_real,
+                COALESCE(SUM(CASE WHEN v.estado = 'emitida' AND v.caja_id = c.id AND v.metodo_pago = 'efectivo' THEN v.total ELSE 0 END), 0) as total_efectivo_real,
+                COALESCE(SUM(CASE WHEN v.estado = 'emitida' AND v.caja_id = c.id AND v.metodo_pago = 'tarjeta_debito' THEN v.total ELSE 0 END), 0) as total_tarjeta_debito_real,
+                COALESCE(SUM(CASE WHEN v.estado = 'emitida' AND v.caja_id = c.id AND v.metodo_pago = 'tarjeta_credito' THEN v.total ELSE 0 END), 0) as total_tarjeta_credito_real,
+                COALESCE(SUM(CASE WHEN v.estado = 'emitida' AND v.caja_id = c.id AND v.metodo_pago = 'transferencia' THEN v.total ELSE 0 END), 0) as total_transferencia_real,
+                COALESCE(SUM(CASE WHEN v.estado = 'emitida' AND v.caja_id = c.id AND v.metodo_pago = 'cheque' THEN v.total ELSE 0 END), 0) as total_cheque_real
+            FROM cajas c
+            LEFT JOIN ventas v ON v.caja_id = c.id AND v.estado = 'emitida'
+            WHERE c.empresa_id = ? AND c.usuario_id = ? AND c.estado = 'abierta'
+            GROUP BY c.id
+            ORDER BY c.fecha_apertura DESC
             LIMIT 1`,
             [empresaId, userId]
         )
@@ -36,9 +46,19 @@ export async function obtenerCajaActiva() {
             }
         }
 
+        const caja = {
+            ...cajas[0],
+            total_ventas: parseFloat(cajas[0].total_ventas_real || 0),
+            total_efectivo: parseFloat(cajas[0].total_efectivo_real || 0),
+            total_tarjeta_debito: parseFloat(cajas[0].total_tarjeta_debito_real || 0),
+            total_tarjeta_credito: parseFloat(cajas[0].total_tarjeta_credito_real || 0),
+            total_transferencia: parseFloat(cajas[0].total_transferencia_real || 0),
+            total_cheque: parseFloat(cajas[0].total_cheque_real || 0)
+        }
+
         return {
             success: true,
-            caja: cajas[0]
+            caja: caja
         }
 
     } catch (error) {
@@ -70,6 +90,22 @@ export async function obtenerCajasDisponibles() {
         }
 
         connection = await db.getConnection()
+
+        // Verificar si el usuario ya tiene una caja abierta
+        const [cajaUsuario] = await connection.execute(
+            `SELECT id, numero_caja FROM cajas 
+            WHERE empresa_id = ? AND usuario_id = ? AND estado = 'abierta'`,
+            [empresaId, userId]
+        )
+
+        if (cajaUsuario.length > 0) {
+            connection.release()
+            return {
+                success: false,
+                mensaje: 'Ya tienes una caja abierta',
+                cajas: []
+            }
+        }
 
         const [config] = await connection.execute(
             `SELECT name, value FROM settings 
@@ -134,8 +170,9 @@ export async function abrirCaja(datos) {
 
         connection = await db.getConnection()
 
+        // Verificar si el usuario ya tiene una caja abierta
         const [cajaActiva] = await connection.execute(
-            `SELECT id FROM cajas 
+            `SELECT id, numero_caja FROM cajas 
             WHERE empresa_id = ? AND usuario_id = ? AND estado = 'abierta'`,
             [empresaId, userId]
         )
@@ -144,14 +181,15 @@ export async function abrirCaja(datos) {
             connection.release()
             return {
                 success: false,
-                mensaje: 'Ya tienes una caja abierta'
+                mensaje: `Ya tienes la Caja ${cajaActiva[0].numero_caja} abierta. Ciérrala antes de abrir otra.`
             }
         }
 
         const fechaHoy = new Date().toISOString().split('T')[0]
 
+        // Verificar si la caja ya está ocupada por otro usuario
         const [cajaOcupada] = await connection.execute(
-            `SELECT id FROM cajas 
+            `SELECT id, numero_caja FROM cajas 
             WHERE empresa_id = ? AND fecha_caja = ? AND numero_caja = ? AND estado = 'abierta'`,
             [empresaId, fechaHoy, datos.numero_caja]
         )
@@ -160,11 +198,12 @@ export async function abrirCaja(datos) {
             connection.release()
             return {
                 success: false,
-                mensaje: 'Esta caja ya esta en uso'
+                mensaje: `La Caja ${datos.numero_caja} ya está en uso por otro usuario`
             }
         }
 
-        await connection.execute(
+        // Insertar nueva caja
+        const [result] = await connection.execute(
             `INSERT INTO cajas (
                 empresa_id,
                 usuario_id,
@@ -186,7 +225,8 @@ export async function abrirCaja(datos) {
 
         return {
             success: true,
-            mensaje: 'Caja abierta exitosamente'
+            mensaje: `Caja ${datos.numero_caja} abierta exitosamente`,
+            cajaId: result.insertId
         }
 
     } catch (error) {
@@ -234,8 +274,6 @@ export async function obtenerVentasCaja() {
             }
         }
 
-        const fechaHoy = new Date().toISOString().split('T')[0]
-
         const [ventas] = await connection.execute(
             `SELECT 
                 id,
@@ -244,9 +282,9 @@ export async function obtenerVentasCaja() {
                 metodo_pago,
                 fecha_venta
             FROM ventas 
-            WHERE empresa_id = ? AND usuario_id = ? AND DATE(fecha_venta) = ?
+            WHERE caja_id = ? AND estado = 'emitida'
             ORDER BY fecha_venta DESC`,
-            [empresaId, userId, fechaHoy]
+            [caja[0].id]
         )
 
         connection.release()
@@ -325,13 +363,6 @@ export async function registrarGasto(datos) {
             ]
         )
 
-        await connection.execute(
-            `UPDATE cajas 
-            SET total_gastos = total_gastos + ?
-            WHERE id = ?`,
-            [datos.monto, caja[0].id]
-        )
-
         connection.release()
 
         return {
@@ -369,14 +400,27 @@ export async function cerrarCaja(datos) {
 
         connection = await db.getConnection()
 
-        const [caja] = await connection.execute(
-            `SELECT * FROM cajas 
-            WHERE empresa_id = ? AND usuario_id = ? AND estado = 'abierta'
+        // Obtener caja activa con totales reales
+        const [cajaResult] = await connection.execute(
+            `SELECT 
+                c.*,
+                COALESCE(SUM(CASE WHEN v.estado = 'emitida' AND v.caja_id = c.id THEN v.total ELSE 0 END), 0) as total_ventas_real,
+                COALESCE(SUM(CASE WHEN v.estado = 'emitida' AND v.caja_id = c.id AND v.metodo_pago = 'efectivo' THEN v.total ELSE 0 END), 0) as total_efectivo_real,
+                COALESCE(SUM(CASE WHEN v.estado = 'emitida' AND v.caja_id = c.id AND v.metodo_pago = 'tarjeta_debito' THEN v.total ELSE 0 END), 0) as total_tarjeta_debito_real,
+                COALESCE(SUM(CASE WHEN v.estado = 'emitida' AND v.caja_id = c.id AND v.metodo_pago = 'tarjeta_credito' THEN v.total ELSE 0 END), 0) as total_tarjeta_credito_real,
+                COALESCE(SUM(CASE WHEN v.estado = 'emitida' AND v.caja_id = c.id AND v.metodo_pago = 'transferencia' THEN v.total ELSE 0 END), 0) as total_transferencia_real,
+                COALESCE(SUM(CASE WHEN v.estado = 'emitida' AND v.caja_id = c.id AND v.metodo_pago = 'cheque' THEN v.total ELSE 0 END), 0) as total_cheque_real,
+                COALESCE(SUM(CASE WHEN g.caja_id = c.id THEN g.monto ELSE 0 END), 0) as total_gastos_real
+            FROM cajas c
+            LEFT JOIN ventas v ON v.caja_id = c.id AND v.estado = 'emitida'
+            LEFT JOIN gastos g ON g.caja_id = c.id
+            WHERE c.empresa_id = ? AND c.usuario_id = ? AND c.estado = 'abierta'
+            GROUP BY c.id
             LIMIT 1`,
             [empresaId, userId]
         )
 
-        if (caja.length === 0) {
+        if (cajaResult.length === 0) {
             connection.release()
             return {
                 success: false,
@@ -384,14 +428,24 @@ export async function cerrarCaja(datos) {
             }
         }
 
-        const cajaData = caja[0]
-        const esperado = cajaData.monto_inicial + cajaData.total_ventas - cajaData.total_gastos
-        const diferencia = datos.monto_final - esperado
+        const cajaData = cajaResult[0]
+        const totalVentasReal = parseFloat(cajaData.total_ventas_real || 0)
+        const totalGastosReal = parseFloat(cajaData.total_gastos_real || 0)
+        const esperado = parseFloat(cajaData.monto_inicial) + totalVentasReal - totalGastosReal
+        const diferencia = parseFloat(datos.monto_final) - esperado
 
+        // Actualizar la caja
         await connection.execute(
             `UPDATE cajas 
             SET 
                 monto_final = ?,
+                total_ventas = ?,
+                total_efectivo = ?,
+                total_tarjeta_debito = ?,
+                total_tarjeta_credito = ?,
+                total_transferencia = ?,
+                total_cheque = ?,
+                total_gastos = ?,
                 diferencia = ?,
                 estado = 'cerrada',
                 notas = ?,
@@ -399,6 +453,13 @@ export async function cerrarCaja(datos) {
             WHERE id = ?`,
             [
                 datos.monto_final,
+                totalVentasReal,
+                parseFloat(cajaData.total_efectivo_real || 0),
+                parseFloat(cajaData.total_tarjeta_debito_real || 0),
+                parseFloat(cajaData.total_tarjeta_credito_real || 0),
+                parseFloat(cajaData.total_transferencia_real || 0),
+                parseFloat(cajaData.total_cheque_real || 0),
+                totalGastosReal,
                 diferencia,
                 datos.notas,
                 cajaData.id
@@ -409,7 +470,8 @@ export async function cerrarCaja(datos) {
 
         return {
             success: true,
-            mensaje: 'Caja cerrada exitosamente'
+            mensaje: 'Caja cerrada exitosamente',
+            diferencia: diferencia
         }
 
     } catch (error) {
@@ -443,9 +505,27 @@ export async function obtenerHistorialCajas() {
         connection = await db.getConnection()
 
         const [cajas] = await connection.execute(
-            `SELECT * FROM cajas 
-            WHERE empresa_id = ? AND usuario_id = ?
-            ORDER BY fecha_caja DESC, fecha_apertura DESC
+            `SELECT 
+                c.id,
+                c.numero_caja,
+                c.fecha_caja,
+                c.monto_inicial,
+                c.monto_final,
+                c.total_ventas,
+                c.total_efectivo,
+                c.total_tarjeta_debito,
+                c.total_tarjeta_credito,
+                c.total_transferencia,
+                c.total_cheque,
+                c.total_gastos,
+                c.diferencia,
+                c.estado,
+                c.fecha_apertura,
+                c.fecha_cierre,
+                c.notas
+            FROM cajas c
+            WHERE c.empresa_id = ? AND c.usuario_id = ?
+            ORDER BY c.fecha_caja DESC, c.fecha_apertura DESC
             LIMIT 50`,
             [empresaId, userId]
         )
@@ -500,7 +580,22 @@ export async function obtenerTodasLasCajas() {
 
         const [cajas] = await connection.execute(
             `SELECT 
-                c.*,
+                c.id,
+                c.numero_caja,
+                c.fecha_caja,
+                c.monto_inicial,
+                c.monto_final,
+                c.total_ventas,
+                c.total_efectivo,
+                c.total_tarjeta_debito,
+                c.total_tarjeta_credito,
+                c.total_transferencia,
+                c.total_cheque,
+                c.total_gastos,
+                c.diferencia,
+                c.estado,
+                c.fecha_apertura,
+                c.fecha_cierre,
                 u.nombre as usuario_nombre
             FROM cajas c
             LEFT JOIN usuarios u ON c.usuario_id = u.id

@@ -117,6 +117,25 @@ export async function obtenerVentaImprimir(ventaId) {
             [ventaId]
         )
 
+        const [extras] = await connection.execute(
+            `SELECT 
+                id,
+                tipo,
+                nombre,
+                cantidad,
+                precio_unitario,
+                aplica_itbis,
+                impuesto_porcentaje,
+                monto_base,
+                monto_impuesto,
+                monto_total,
+                notas
+            FROM venta_extras
+            WHERE venta_id = ?
+            ORDER BY id ASC`,
+            [ventaId]
+        )
+
         const metodoPagoTexto = {
             efectivo: 'Efectivo',
             tarjeta_debito: 'Tarjeta de Débito',
@@ -133,7 +152,8 @@ export async function obtenerVentaImprimir(ventaId) {
             venta: {
                 ...venta[0],
                 metodo_pago_texto: metodoPagoTexto[venta[0].metodo_pago] || venta[0].metodo_pago,
-                productos: productos
+                productos: productos,
+                extras: extras
             },
             empresa: empresa[0]
         }

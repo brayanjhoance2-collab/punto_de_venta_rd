@@ -133,7 +133,7 @@ export default function Login() {
                     </div>
 
                     <div className={estilos.opciones}>
-                        <Link href="/recuperar-password" className={estilos.enlaceRecuperar}>
+                        <Link href="/recuperar" className={estilos.enlaceRecuperar}>
                             Olvidaste tu contrasena?
                         </Link>
                     </div>

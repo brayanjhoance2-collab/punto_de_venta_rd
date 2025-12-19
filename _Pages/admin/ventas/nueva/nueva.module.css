@@ -1494,4 +1494,925 @@ padding: 20px 15px;
 .dark .despachoPendiente {
     background: #78350f;
     color: #fde68a;
+}.contenedor *,
+.contenedor *::before,
+.contenedor *::after {
+    box-sizing: border-box;
+}
+
+.contenedor {
+    overflow-x: hidden;
+    width: 100%;
+}
+
+.inputBusqueda,
+.select,
+.input,
+.textarea,
+.inputCantidad,
+.inputPrecio,
+.inputCantidadDespacho {
+    box-sizing: border-box;
+}
+
+@media (max-width: 1200px) {
+    .contenido {
+        grid-template-columns: 1fr;
+    }
+
+    .resumenVenta {
+        position: relative;
+        top: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .contenedor {
+        padding: 15px 10px;
+    }
+
+    .titulo {
+        font-size: 24px;
+    }
+
+    .subtitulo {
+        font-size: 14px;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    .btnCancelar {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .seccion {
+        padding: 16px;
+    }
+
+    .tituloSeccion {
+        font-size: 16px;
+    }
+
+    .tituloSeccion ion-icon {
+        font-size: 20px;
+    }
+
+    .inputBusqueda {
+        font-size: 14px;
+        padding: 10px 14px 10px 40px;
+    }
+
+    .busquedaProducto > ion-icon:first-child,
+    .busquedaCliente > ion-icon:first-child {
+        font-size: 18px;
+        left: 12px;
+    }
+
+    .productoControles {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+    }
+
+    .controlCantidad {
+        justify-content: center;
+    }
+
+    .controlPrecio {
+        width: 100%;
+    }
+
+    .productoSubtotal {
+        justify-content: center;
+        width: 100%;
+        padding: 8px 0;
+        border-top: 1px solid;
+    }
+
+    .light .productoSubtotal {
+        border-color: #e5e7eb;
+    }
+
+    .dark .productoSubtotal {
+        border-color: #334155;
+    }
+
+    .btnEliminar {
+        width: 100%;
+    }
+
+    .gridMetodosPago {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .btnMetodoPago {
+        padding: 16px 12px;
+        min-height: 90px;
+    }
+
+    .btnMetodoPago ion-icon {
+        font-size: 28px;
+    }
+
+    .btnMetodoPago span {
+        font-size: 13px;
+    }
+
+    .modal {
+        max-width: calc(100% - 20px);
+        margin: 0 10px;
+    }
+
+    .modalHeader {
+        padding: 16px 20px;
+    }
+
+    .modalHeader h2 {
+        font-size: 20px;
+    }
+
+    .modalBody {
+        padding: 20px;
+    }
+
+    .modalFooter {
+        padding: 16px 20px;
+        flex-direction: column;
+    }
+
+    .btnCancelarModal,
+    .btnGuardarModal {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .controlDespacho {
+        padding: 10px;
+    }
+
+    .inputDespachoContainer {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .contenedor {
+        padding: 12px 8px;
+    }
+
+    .titulo {
+        font-size: 20px;
+    }
+
+    .subtitulo {
+        font-size: 13px;
+    }
+
+    .btnCancelar {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .btnCancelar ion-icon {
+        font-size: 20px;
+    }
+
+    .seccion {
+        padding: 14px;
+    }
+
+    .tituloSeccion {
+        font-size: 15px;
+    }
+
+    .inputBusqueda {
+        font-size: 13px;
+        padding: 9px 12px 9px 38px;
+    }
+
+    .dropdownProductos,
+    .dropdownClientes {
+        max-height: 300px;
+    }
+
+    .dropdownItem,
+    .dropdownItemCliente {
+        padding: 10px 12px;
+    }
+
+    .productoNombre,
+    .clienteNombre {
+        font-size: 13px;
+    }
+
+    .productoCodigo,
+    .clienteDoc {
+        font-size: 11px;
+    }
+
+    .productoDetalles {
+        gap: 2px;
+    }
+
+    .productoNombreItem {
+        font-size: 14px;
+    }
+
+    .productoStockItem {
+        font-size: 11px;
+    }
+
+    .btnCantidad {
+        width: 30px;
+        height: 30px;
+    }
+
+    .btnCantidad ion-icon {
+        font-size: 16px;
+    }
+
+    .inputCantidad {
+        width: 55px;
+        padding: 5px 6px;
+        font-size: 13px;
+    }
+
+    .labelPrecio {
+        font-size: 13px;
+    }
+
+    .inputPrecio {
+        padding: 5px 8px;
+        font-size: 13px;
+    }
+
+    .productoSubtotal span {
+        font-size: 15px;
+    }
+
+    .btnEliminar {
+        width: 100%;
+        height: 34px;
+    }
+
+    .btnEliminar ion-icon {
+        font-size: 18px;
+    }
+
+    .gridMetodosPago {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .btnMetodoPago {
+        padding: 14px 12px;
+        min-height: 80px;
+    }
+
+    .btnMetodoPago ion-icon {
+        font-size: 26px;
+    }
+
+    .btnMetodoPago span {
+        font-size: 12px;
+    }
+
+    .select,
+    .input,
+    .textarea {
+        padding: 9px 12px;
+        font-size: 13px;
+    }
+
+    .grupoInput label {
+        font-size: 12px;
+    }
+
+    .resumenVenta {
+        padding: 20px;
+    }
+
+    .tituloResumen {
+        font-size: 16px;
+    }
+
+    .lineaResumen {
+        font-size: 13px;
+    }
+
+    .lineaTotal {
+        padding: 14px;
+        font-size: 16px;
+    }
+
+    .lineaTotal span:last-child {
+        font-size: 20px;
+    }
+
+    .btnProcesar {
+        padding: 14px 20px;
+        font-size: 15px;
+    }
+
+    .btnProcesar ion-icon {
+        font-size: 22px;
+    }
+
+    .modal {
+        max-width: calc(100% - 16px);
+        margin: 0 8px;
+    }
+
+    .modalHeader {
+        padding: 14px 16px;
+    }
+
+    .modalHeader h2 {
+        font-size: 18px;
+    }
+
+    .btnCerrarModal ion-icon {
+        font-size: 24px;
+    }
+
+    .modalBody {
+        padding: 16px;
+    }
+
+    .infoModal {
+        font-size: 13px;
+    }
+
+    .modalFooter {
+        padding: 14px 16px;
+    }
+
+    .btnCancelarModal,
+    .btnGuardarModal {
+        padding: 9px 20px;
+        font-size: 13px;
+    }
+
+    .checkboxTexto {
+        font-size: 12px;
+    }
+
+    .controlDespacho {
+        padding: 10px;
+    }
+
+    .labelDespacho {
+        font-size: 11px;
+    }
+
+    .btnCantidadDespacho {
+        width: 26px;
+        height: 26px;
+    }
+
+    .btnCantidadDespacho ion-icon {
+        font-size: 14px;
+    }
+
+    .inputCantidadDespacho {
+        width: 45px;
+        font-size: 12px;
+    }
+
+    .despachoInfo {
+        font-size: 11px;
+    }
+
+    .despachoPendiente {
+        font-size: 10px;
+        padding: 3px 6px;
+    }
+}
+
+/* ==========================
+   ESTILOS PARA PRODUCTOS EXTRA
+   Agregar al final de nueva.module.css
+   ========================== */
+
+.headerSeccionExtra {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.btnAgregarExtra {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 2px dashed;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.light .btnAgregarExtra {
+    background: transparent;
+    border-color: #cbd5e1;
+    color: #64748b;
+}
+
+.dark .btnAgregarExtra {
+    background: transparent;
+    border-color: #475569;
+    color: #94a3b8;
+}
+
+.light .btnAgregarExtra:hover {
+    background: #f1f5f9;
+    border-color: #10b981;
+    color: #10b981;
+}
+
+.dark .btnAgregarExtra:hover {
+    background: #334155;
+    border-color: #34d399;
+    color: #34d399;
+}
+
+.btnAgregarExtra ion-icon {
+    font-size: 18px;
+}
+
+.sinExtras {
+    text-align: center;
+    padding: 30px 20px;
+    font-size: 14px;
+    border-radius: 8px;
+}
+
+.light .sinExtras {
+    color: #94a3b8;
+    background: #f8fafc;
+}
+
+.dark .sinExtras {
+    color: #64748b;
+    background: #0f172a;
+}
+
+.listaExtras {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.itemExtra {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid;
+}
+
+.light .itemExtra {
+    background: #f8fafc;
+    border-color: #e5e7eb;
+}
+
+.dark .itemExtra {
+    background: #0f172a;
+    border-color: #334155;
+}
+
+.infoExtra {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.nombreExtra {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.light .nombreExtra {
+    color: #0f172a;
+}
+
+.dark .nombreExtra {
+    color: #f1f5f9;
+}
+
+.detalleExtra {
+    font-size: 12px;
+}
+
+.light .detalleExtra {
+    color: #64748b;
+}
+
+.dark .detalleExtra {
+    color: #94a3b8;
+}
+
+.notasExtra {
+    font-size: 11px;
+    font-style: italic;
+}
+
+.light .notasExtra {
+    color: #94a3b8;
+}
+
+.dark .notasExtra {
+    color: #64748b;
+}
+
+.accionesExtra {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.totalExtra {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.light .totalExtra {
+    color: #10b981;
+}
+
+.dark .totalExtra {
+    color: #34d399;
+}
+
+.btnEliminarExtra {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.btnEliminarExtra ion-icon {
+    font-size: 24px;
+}
+
+.light .btnEliminarExtra ion-icon {
+    color: #ef4444;
+}
+
+.dark .btnEliminarExtra ion-icon {
+    color: #f87171;
+}
+
+.btnEliminarExtra:hover {
+    transform: scale(1.15);
+}
+
+/* Modal Extra */
+.modalExtra {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 16px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modalExtra.light {
+    background: #ffffff;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modalExtra.dark {
+    background: #1e293b;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.formularioExtra {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 30px;
+}
+
+.grupoExtra {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.etiquetaExtra {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.light .etiquetaExtra {
+    color: #374151;
+}
+
+.dark .etiquetaExtra {
+    color: #e2e8f0;
+}
+
+.requeridoExtra {
+    color: #ef4444;
+}
+
+.dark .requeridoExtra {
+    color: #f87171;
+}
+
+.inputExtra,
+.selectExtra,
+.textareaExtra {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 14px;
+    border: 2px solid;
+    border-radius: 8px;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.light .inputExtra,
+.light .selectExtra,
+.light .textareaExtra {
+    background: #ffffff;
+    border-color: #e5e7eb;
+    color: #1f2937;
+}
+
+.dark .inputExtra,
+.dark .selectExtra,
+.dark .textareaExtra {
+    background: #334155;
+    border-color: #475569;
+    color: #f1f5f9;
+}
+
+.light .inputExtra:focus,
+.light .selectExtra:focus,
+.light .textareaExtra:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dark .inputExtra:focus,
+.dark .selectExtra:focus,
+.dark .textareaExtra:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.textareaExtra {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.filaExtra {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.inputWrapperExtra {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.prefijoExtra {
+    position: absolute;
+    left: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 1;
+}
+
+.light .prefijoExtra {
+    color: #6b7280;
+}
+
+.dark .prefijoExtra {
+    color: #94a3b8;
+}
+
+.inputExtraPrecio {
+    width: 100%;
+    padding: 10px 14px 10px 48px;
+    font-size: 14px;
+    border: 2px solid;
+    border-radius: 8px;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.light .inputExtraPrecio {
+    background: #ffffff;
+    border-color: #e5e7eb;
+    color: #1f2937;
+}
+
+.dark .inputExtraPrecio {
+    background: #334155;
+    border-color: #475569;
+    color: #f1f5f9;
+}
+
+.light .inputExtraPrecio:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dark .inputExtraPrecio:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.checkboxLabelExtra {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.light .checkboxLabelExtra {
+    color: #374151;
+}
+
+.dark .checkboxLabelExtra {
+    color: #e2e8f0;
+}
+
+.checkboxExtra {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #3b82f6;
+}
+
+.resumenExtra {
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid;
+}
+
+.light .resumenExtra {
+    background: #f9fafb;
+    border-color: #e5e7eb;
+}
+
+.dark .resumenExtra {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.lineaResumenExtra {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.light .lineaResumenExtra {
+    color: #6b7280;
+}
+
+.dark .lineaResumenExtra {
+    color: #94a3b8;
+}
+
+.lineaResumenTotalExtra {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    font-weight: 600;
+    padding-top: 8px;
+    border-top: 2px solid;
+    margin-top: 8px;
+}
+
+.light .lineaResumenTotalExtra {
+    color: #1f2937;
+    border-top-color: #e5e7eb;
+}
+
+.dark .lineaResumenTotalExtra {
+    color: #f1f5f9;
+    border-top-color: #334155;
+}
+
+.accionesExtra {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.botonCancelarExtra,
+.botonAgregarExtraModal {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.botonCancelarExtra {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.botonCancelarExtra:hover {
+    background: #e5e7eb;
+}
+
+.dark .botonCancelarExtra {
+    background: #334155;
+    color: #f1f5f9;
+}
+
+.dark .botonCancelarExtra:hover {
+    background: #475569;
+}
+
+.botonAgregarExtraModal {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.botonAgregarExtraModal:hover:not(:disabled) {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+    transform: translateY(-2px);
+}
+
+.botonAgregarExtraModal:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.botonAgregarExtraModal ion-icon {
+    font-size: 18px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .filaExtra {
+        grid-template-columns: 1fr;
+    }
+
+    .headerSeccionExtra {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .btnAgregarExtra {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .itemExtra {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .accionesExtra {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .formularioExtra {
+        padding: 20px;
+    }
+
+    .accionesExtra button {
+        flex: 1;
+    }
 }

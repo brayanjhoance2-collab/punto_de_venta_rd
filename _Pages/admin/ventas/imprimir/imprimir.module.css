@@ -806,4 +806,401 @@ body[data-print-size="A4"] {
     .listaOpciones {
         grid-template-columns: 1fr;
     }
+}.contenedor *,
+.contenedor *::before,
+.contenedor *::after {
+    box-sizing: border-box;
+}
+
+.contenedor {
+    overflow-x: hidden;
+    width: 100%;
+}
+
+@media screen and (max-width: 1200px) {
+    .vistaPrevia {
+        flex-direction: column;
+        align-items: center;
+        padding: 15px;
+    }
+
+    .panelOpciones {
+        position: static;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .listaOpciones {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .boucher[data-size="58mm"] {
+        width: 100%;
+        max-width: 500px;
+        font-size: 14px;
+    }
+
+    .boucher[data-size="80mm"] {
+        width: 100%;
+        max-width: 650px;
+        font-size: 15px;
+    }
+
+    .boucher[data-size="A4"] {
+        width: 100%;
+        max-width: 700px;
+        font-size: 15px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .contenedor {
+        padding: 15px 10px;
+        gap: 20px;
+    }
+
+    .controles {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 20px;
+        gap: 20px;
+    }
+
+    .selectores {
+        width: 100%;
+    }
+
+    .selectores h3 {
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .botonesTabaño {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btnTamaño {
+        padding: 9px 20px;
+        font-size: 13px;
+        flex: 1;
+        min-width: 80px;
+    }
+
+    .botonesAccion {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .btnImprimir,
+    .btnCerrar {
+        width: 100%;
+        padding: 11px 28px;
+        font-size: 14px;
+    }
+
+    .vistaPrevia {
+        padding: 10px;
+        gap: 20px;
+    }
+
+    .panelOpciones {
+        padding: 16px;
+    }
+
+    .panelOpciones h3 {
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .listaOpciones {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .opcionLabel span {
+        font-size: 12px;
+    }
+
+    .switch {
+        width: 42px;
+        height: 22px;
+    }
+
+    .switchSlider {
+        width: 18px;
+        height: 18px;
+    }
+
+    .switch.activo .switchSlider {
+        transform: translateX(20px);
+    }
+
+    .boucher {
+        width: 100% !important;
+        max-width: 100%;
+        font-size: 13px !important;
+        padding: 25px !important;
+    }
+
+    .boucher[data-size="58mm"],
+    .boucher[data-size="80mm"],
+    .boucher[data-size="A4"] {
+        width: 100% !important;
+        max-width: 100%;
+        font-size: 13px !important;
+    }
+
+    .encabezado h1 {
+        font-size: 1.2em;
+    }
+
+    .comprobante .tipoDoc {
+        font-size: 1.1em;
+    }
+
+    .comprobante .ncf {
+        font-size: 1em;
+    }
+
+    .productos {
+        font-size: 12px;
+    }
+
+    .productos th,
+    .productos td {
+        padding: 6px 4px;
+    }
+
+    .totales .fila {
+        font-size: 13px;
+    }
+
+    .totales .fila.total {
+        font-size: 1.2em;
+    }
+
+    .codigoQR {
+        padding: 10px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .contenedor {
+        padding: 12px 8px;
+        gap: 15px;
+    }
+
+    .controles {
+        padding: 16px;
+        gap: 16px;
+    }
+
+    .selectores h3 {
+        font-size: 13px;
+        margin-bottom: 10px;
+    }
+
+    .botonesTabaño {
+        gap: 8px;
+    }
+
+    .btnTamaño {
+        padding: 8px 16px;
+        font-size: 12px;
+        min-width: 70px;
+    }
+
+    .botonesAccion {
+        gap: 10px;
+    }
+
+    .btnImprimir,
+    .btnCerrar {
+        padding: 10px 24px;
+        font-size: 13px;
+    }
+
+    .vistaPrevia {
+        padding: 8px;
+        gap: 15px;
+    }
+
+    .panelOpciones {
+        padding: 14px;
+    }
+
+    .panelOpciones h3 {
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+
+    .listaOpciones {
+        gap: 8px;
+    }
+
+    .opcionLabel span {
+        font-size: 11px;
+    }
+
+    .switch {
+        width: 38px;
+        height: 20px;
+    }
+
+    .switchSlider {
+        width: 16px;
+        height: 16px;
+    }
+
+    .switch.activo .switchSlider {
+        transform: translateX(18px);
+    }
+
+    .boucher {
+        padding: 20px !important;
+        font-size: 12px !important;
+    }
+
+    .encabezado {
+        margin-bottom: 15px;
+    }
+
+    .encabezado h1 {
+        font-size: 1.1em;
+        margin-bottom: 8px;
+    }
+
+    .encabezado p {
+        margin: 3px 0;
+        font-size: 0.95em;
+    }
+
+    .linea {
+        margin: 12px 0;
+    }
+
+    .lineaDoble {
+        margin: 10px 0;
+    }
+
+    .lineaSencilla {
+        margin: 8px 0;
+    }
+
+    .comprobante {
+        margin: 12px 0;
+    }
+
+    .comprobante .tipoDoc {
+        font-size: 1em;
+        margin-bottom: 6px;
+    }
+
+    .comprobante .ncf {
+        font-size: 0.95em;
+        margin: 5px 0;
+    }
+
+    .comprobante p {
+        margin: 4px 0;
+        font-size: 0.95em;
+    }
+
+    .info {
+        margin: 12px 0;
+    }
+
+    .info p {
+        margin: 5px 0;
+        font-size: 0.95em;
+    }
+
+    .productos {
+        font-size: 11px;
+        margin: 12px 0;
+    }
+
+    .productos th {
+        padding: 6px 3px;
+        font-size: 0.9em;
+    }
+
+    .productos td {
+        padding: 5px 3px;
+    }
+
+    .totales {
+        margin: 14px 0;
+    }
+
+    .totales .fila {
+        font-size: 12px;
+        padding: 5px 0;
+    }
+
+    .totales .fila.total {
+        font-size: 1.15em;
+        margin: 8px 0;
+    }
+
+    .notas {
+        margin: 12px 0;
+        padding: 10px;
+        font-size: 0.95em;
+    }
+
+    .footer {
+        margin-top: 14px;
+    }
+
+    .footer .mensaje {
+        margin: 8px 0;
+        font-size: 0.95em;
+    }
+
+    .footer .legal {
+        font-size: 0.8em;
+        margin: 6px 0;
+    }
+
+    .footer .fecha {
+        font-size: 0.8em;
+        margin: 5px 0;
+    }
+
+    .footer .gracias {
+        font-size: 1.1em;
+        margin: 12px 0 0 0;
+    }
+
+    .codigoQR {
+        margin: 15px 0;
+        padding: 8px;
+    }
+
+    .cargando,
+    .error {
+        min-height: 300px;
+        padding: 20px;
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+    }
+
+    .cargando p {
+        font-size: 14px;
+    }
+
+    .error h2 {
+        font-size: 20px;
+    }
+
+    .error p {
+        font-size: 14px;
+    }
 }

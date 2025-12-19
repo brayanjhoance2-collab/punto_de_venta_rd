@@ -4,6 +4,15 @@
     margin: 0 auto;
     min-height: calc(100vh - 70px);
     transition: all 0.3s ease;
+    overflow-x: hidden;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.contenedor *,
+.contenedor *::before,
+.contenedor *::after {
+    box-sizing: border-box;
 }
 
 .contenedor.light {
@@ -408,12 +417,14 @@
     gap: 15px;
     margin-bottom: 25px;
     flex-wrap: wrap;
+    width: 100%;
 }
 
 .busqueda {
-    flex: 1;
-    min-width: 300px;
+    flex: 1 1 100%;
+    min-width: 0;
     position: relative;
+    width: 100%;
 }
 
 .busqueda ion-icon {
@@ -423,6 +434,7 @@
     transform: translateY(-50%);
     font-size: 20px;
     pointer-events: none;
+    z-index: 1;
 }
 
 .light .busqueda ion-icon {
@@ -440,6 +452,7 @@
     border-radius: 10px;
     font-size: 15px;
     transition: all 0.2s ease;
+    box-sizing: border-box;
 }
 
 .light .inputBusqueda {
@@ -468,6 +481,7 @@
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
+    width: 100%;
 }
 
 .selectFiltro,
@@ -479,7 +493,9 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
-    min-width: 180px;
+    flex: 1 1 auto;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .light .selectFiltro,
@@ -826,6 +842,11 @@
     color: #ffffff;
 }
 
+.btnIcono.despachar:hover:not(:disabled) {
+    background: #f59e0b;
+    color: #ffffff;
+}
+
 .btnIcono:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -1107,84 +1128,6 @@
     cursor: not-allowed;
 }
 
-@media (max-width: 1400px) {
-    .tablaHeader,
-    .fila {
-        grid-template-columns: 1.2fr 0.9fr 1.3fr 1.1fr 0.9fr 0.9fr 0.9fr 0.9fr 1.1fr;
-    }
-}
-
-@media (max-width: 1024px) {
-    .tabla {
-        overflow-x: auto;
-    }
-
-    .tablaHeader,
-    .fila {
-        min-width: 1200px;
-    }
-
-    .estadisticas {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    .contenedor {
-        padding: 20px 15px;
-    }
-
-    .titulo {
-        font-size: 24px;
-    }
-
-    .header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .btnNuevo {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .controles {
-        flex-direction: column;
-    }
-
-    .filtros {
-        width: 100%;
-    }
-
-    .selectFiltro,
-    .inputFecha {
-        width: 100%;
-    }
-
-    .estadisticas {
-        grid-template-columns: 1fr;
-    }
-
-    .infoCajaAbierta {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .cajaMontos {
-        width: 100%;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .modal {
-        max-width: 100%;
-    }
-
-    .modalBody {
-        padding: 20px;
-    }
-}
-
 .estadoContainer {
     display: flex;
     flex-direction: column;
@@ -1206,7 +1149,652 @@
     border: 1px solid #fde68a;
 }
 
-.btnIcono.despachar:hover:not(:disabled) {
-    background: #f59e0b;
-    color: #ffffff;
+.listaMovil {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.cardMovil {
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid;
+    transition: all 0.2s ease;
+}
+
+.light .cardMovil {
+    background: #ffffff;
+    border-color: #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dark .cardMovil {
+    background: #1e293b;
+    border-color: #334155;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    gap: 12px;
+}
+
+.cardHeaderInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.numeroMovil {
+    font-size: 15px;
+    font-weight: 700;
+    font-family: monospace;
+}
+
+.light .numeroMovil {
+    color: #0f172a;
+}
+
+.dark .numeroMovil {
+    color: #f1f5f9;
+}
+
+.montoTotalMovil {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.light .montoTotalMovil {
+    color: #10b981;
+}
+
+.dark .montoTotalMovil {
+    color: #34d399;
+}
+
+.cardBody {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.cardRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.cardLabel {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.light .cardLabel {
+    color: #64748b;
+}
+
+.dark .cardLabel {
+    color: #94a3b8;
+}
+
+.cardValue {
+    font-size: 14px;
+    font-weight: 600;
+    text-align: right;
+}
+
+.light .cardValue {
+    color: #0f172a;
+}
+
+.dark .cardValue {
+    color: #f1f5f9;
+}
+
+.cardAcciones {
+    display: flex;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid;
+}
+
+.light .cardAcciones {
+    border-color: #e5e7eb;
+}
+
+.dark .cardAcciones {
+    border-color: #334155;
+}
+
+@media (max-width: 1200px) {
+    .tablaHeader,
+    .fila {
+        grid-template-columns: 1.2fr 0.9fr 1.3fr 1.1fr 0.9fr 0.9fr 0.9fr 0.9fr 1.1fr;
+    }
+
+    .estadisticas {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 1024px) {
+    .contenedor {
+        padding: 25px 20px;
+    }
+
+    .tabla {
+        overflow-x: auto;
+    }
+
+    .tablaHeader,
+    .fila {
+        min-width: 1200px;
+    }
+
+    .busqueda {
+        flex: 1 1 100%;
+        min-width: 0;
+    }
+
+    .selectFiltro,
+    .inputFecha {
+        flex: 1 1 calc(50% - 6px);
+        min-width: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .contenedor {
+        padding: 15px 10px;
+        overflow-x: hidden;
+    }
+
+    .titulo {
+        font-size: 24px;
+    }
+
+    .subtitulo {
+        font-size: 14px;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    .btnNuevo {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .cajaRequerida {
+        padding: 60px 20px;
+        min-height: 400px;
+    }
+
+    .cajaIcono {
+        width: 100px;
+        height: 100px;
+    }
+
+    .cajaIcono ion-icon {
+        font-size: 56px;
+    }
+
+    .cajaRequerida h2 {
+        font-size: 24px;
+    }
+
+    .cajaRequerida p {
+        font-size: 15px;
+    }
+
+    .infoCajaAbierta {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px;
+        width: 100%;
+    }
+
+    .cajaInfo ion-icon {
+        font-size: 28px;
+    }
+
+    .cajaLabel {
+        font-size: 12px;
+    }
+
+    .cajaNumero {
+        font-size: 16px;
+    }
+
+    .cajaMontos {
+        width: 100%;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .montoItem span {
+        font-size: 12px;
+    }
+
+    .montoItem strong {
+        font-size: 16px;
+    }
+
+    .estadisticas {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .estadCard {
+        padding: 16px;
+    }
+
+    .estadIcono {
+        width: 50px;
+        height: 50px;
+    }
+
+    .estadIcono ion-icon {
+        font-size: 28px;
+    }
+
+    .estadLabel {
+        font-size: 12px;
+    }
+
+    .estadValor {
+        font-size: 20px;
+    }
+
+    .controles {
+        flex-direction: column;
+        width: 100%;
+        gap: 12px;
+    }
+
+    .busqueda {
+        flex: 1 1 100%;
+        min-width: 0;
+        width: 100%;
+    }
+
+    .inputBusqueda {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .filtros {
+        width: 100%;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .selectFiltro,
+    .inputFecha {
+        width: 100%;
+        flex: 1 1 100%;
+        min-width: 0;
+    }
+
+    .modal {
+        max-width: calc(100% - 20px);
+        margin: 0 10px;
+        width: calc(100% - 20px);
+    }
+
+    .modalHeader {
+        padding: 20px;
+    }
+
+    .modalHeader h2 {
+        font-size: 20px;
+    }
+
+    .modalBody {
+        padding: 20px;
+    }
+
+    .modalFooter {
+        padding: 16px 20px;
+        flex-direction: column;
+    }
+
+    .btnCancelar,
+    .btnGuardar {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .cardMovil {
+        padding: 14px;
+        width: 100%;
+    }
+
+    .cardHeader {
+        margin-bottom: 14px;
+    }
+
+    .numeroMovil {
+        font-size: 14px;
+    }
+
+    .montoTotalMovil {
+        font-size: 18px;
+    }
+
+    .cardBody {
+        gap: 10px;
+        margin-bottom: 14px;
+        width: 100%;
+    }
+
+    .cardRow {
+        width: 100%;
+    }
+
+    .cardLabel {
+        font-size: 12px;
+    }
+
+    .cardValue {
+        font-size: 13px;
+    }
+
+    .cardAcciones {
+        padding-top: 10px;
+        flex-wrap: wrap;
+    }
+
+    .badgeMetodo,
+    .badgeEstado {
+        font-size: 10px;
+        padding: 5px 10px;
+    }
+
+    .badgePendiente {
+        font-size: 9px;
+        padding: 3px 8px;
+    }
+
+    .listaMovil {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .contenedor {
+        padding: 12px 8px;
+        overflow-x: hidden;
+    }
+
+    .titulo {
+        font-size: 20px;
+    }
+
+    .subtitulo {
+        font-size: 13px;
+    }
+
+    .btnNuevo {
+        padding: 10px 20px;
+        font-size: 14px;
+        width: 100%;
+    }
+
+    .btnNuevo ion-icon {
+        font-size: 20px;
+    }
+
+    .cajaRequerida {
+        padding: 40px 15px;
+        min-height: 350px;
+    }
+
+    .cajaIcono {
+        width: 80px;
+        height: 80px;
+    }
+
+    .cajaIcono ion-icon {
+        font-size: 48px;
+    }
+
+    .cajaRequerida h2 {
+        font-size: 20px;
+    }
+
+    .cajaRequerida p {
+        font-size: 14px;
+    }
+
+    .btnAbrirCaja {
+        padding: 12px 24px;
+        font-size: 14px;
+        width: 100%;
+        max-width: 280px;
+    }
+
+    .btnAbrirCaja ion-icon {
+        font-size: 20px;
+    }
+
+    .infoCajaAbierta {
+        padding: 12px;
+        width: 100%;
+    }
+
+    .estadCard {
+        padding: 14px;
+    }
+
+    .estadIcono {
+        width: 45px;
+        height: 45px;
+    }
+
+    .estadIcono ion-icon {
+        font-size: 24px;
+    }
+
+    .estadValor {
+        font-size: 18px;
+    }
+
+    .busqueda {
+        width: 100%;
+        flex: 1 1 100%;
+        min-width: 0;
+    }
+
+    .busqueda ion-icon {
+        font-size: 18px;
+        left: 12px;
+    }
+
+    .inputBusqueda {
+        padding: 10px 14px 10px 40px;
+        font-size: 14px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .filtros {
+        width: 100%;
+    }
+
+    .selectFiltro,
+    .inputFecha {
+        padding: 10px 14px;
+        font-size: 13px;
+        width: 100%;
+        flex: 1 1 100%;
+        min-width: 0;
+    }
+
+    .modal {
+        max-width: calc(100% - 16px);
+        margin: 0 8px;
+        width: calc(100% - 16px);
+    }
+
+    .modalHeader {
+        padding: 16px;
+    }
+
+    .modalHeader h2 {
+        font-size: 18px;
+    }
+
+    .btnCerrar ion-icon {
+        font-size: 24px;
+    }
+
+    .modalBody {
+        padding: 16px;
+        gap: 16px;
+    }
+
+    .infoCaja {
+        padding: 12px;
+    }
+
+    .infoCaja ion-icon {
+        font-size: 20px;
+    }
+
+    .infoCaja p {
+        font-size: 13px;
+    }
+
+    .grupoInput {
+        width: 100%;
+    }
+
+    .grupoInput label {
+        font-size: 13px;
+    }
+
+    .inputMoneda {
+        width: 100%;
+    }
+
+    .simboloMoneda {
+        left: 12px;
+        font-size: 14px;
+    }
+
+    .inputMoneda input {
+        padding: 10px 12px 10px 42px;
+        font-size: 14px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .modalFooter {
+        padding: 14px 16px;
+    }
+
+    .btnCancelar,
+    .btnGuardar {
+        padding: 10px 20px;
+        font-size: 13px;
+        width: 100%;
+    }
+
+    .cardMovil {
+        padding: 12px;
+        width: 100%;
+    }
+
+    .cardHeader {
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+    }
+
+    .numeroMovil {
+        font-size: 13px;
+    }
+
+    .montoTotalMovil {
+        font-size: 16px;
+    }
+
+    .cardBody {
+        gap: 8px;
+        margin-bottom: 12px;
+        width: 100%;
+    }
+
+    .cardRow {
+        gap: 8px;
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .cardLabel {
+        font-size: 11px;
+    }
+
+    .cardValue {
+        font-size: 12px;
+        word-break: break-word;
+    }
+
+    .cardAcciones {
+        padding-top: 8px;
+    }
+
+    .btnIcono {
+        width: 34px;
+        height: 34px;
+    }
+
+    .btnIcono ion-icon {
+        font-size: 18px;
+    }
+
+    .badgeMetodo,
+    .badgeEstado {
+        font-size: 9px;
+        padding: 4px 8px;
+    }
+
+    .badgePendiente {
+        font-size: 8px;
+        padding: 2px 6px;
+    }
+
+    .vacio {
+        padding: 30px 20px;
+    }
+
+    .vacio ion-icon {
+        font-size: 48px;
+    }
+
+    .vacio span {
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .cargando {
+        min-height: 300px;
+        font-size: 14px;
+    }
+
+    .iconoCargando {
+        font-size: 40px;
+    }
+
+    .listaMovil {
+        width: 100%;
+    }
 }

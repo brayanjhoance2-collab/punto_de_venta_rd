@@ -204,6 +204,8 @@ export async function obtenerVentas() {
                 v.efectivo_recibido,
                 v.cambio,
                 v.estado,
+                v.tipo_entrega,
+                v.despacho_completo,
                 v.razon_anulacion,
                 v.fecha_venta,
                 c.nombre as cliente_nombre,

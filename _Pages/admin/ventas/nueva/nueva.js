@@ -31,6 +31,25 @@ export default function NuevaVentaAdmin() {
     const [descuentoGlobal, setDescuentoGlobal] = useState('')
     const [notasVenta, setNotasVenta] = useState('')
 
+    // Estados para Productos Extra
+    const [mostrarModalExtra, setMostrarModalExtra] = useState(false)
+    const [productosExtra, setProductosExtra] = useState([])
+    const [formExtra, setFormExtra] = useState({
+        nombre: '',
+        tipo: 'otro',
+        cantidad: 1,
+        precioUnitario: '',
+        aplicaItbis: true,
+        notas: ''
+    })
+
+    const tiposExtra = [
+        { valor: 'ingrediente', nombre: 'Ingrediente Extra' },
+        { valor: 'delivery', nombre: 'Delivery' },
+        { valor: 'propina', nombre: 'Propina' },
+        { valor: 'otro', nombre: 'Otro' }
+    ]
+
     useEffect(() => {
         const temaLocal = localStorage.getItem('tema') || 'light'
         setTema(temaLocal)
@@ -110,28 +129,28 @@ export default function NuevaVentaAdmin() {
         }
     }
 
-const agregarProducto = (producto) => {
-    const existe = productosVenta.find(p => p.id === producto.id)
-    
-    if (existe) {
-        setProductosVenta(productosVenta.map(p => 
-            p.id === producto.id 
-                ? { ...p, cantidad: p.cantidad + 1, cantidadDespachar: (p.cantidadDespachar || p.cantidad) + 1 }
-                : p
-        ))
-    } else {
-        setProductosVenta([...productosVenta, {
-            ...producto,
-            cantidad: 1,
-            precio_venta_usado: parseFloat(producto.precio_venta),
-            despacho_parcial: false,
-            cantidadDespachar: 1
-        }])
-    }
+    const agregarProducto = (producto) => {
+        const existe = productosVenta.find(p => p.id === producto.id)
+        
+        if (existe) {
+            setProductosVenta(productosVenta.map(p => 
+                p.id === producto.id 
+                    ? { ...p, cantidad: p.cantidad + 1, cantidadDespachar: (p.cantidadDespachar || p.cantidad) + 1 }
+                    : p
+            ))
+        } else {
+            setProductosVenta([...productosVenta, {
+                ...producto,
+                cantidad: 1,
+                precio_venta_usado: parseFloat(producto.precio_venta),
+                despacho_parcial: false,
+                cantidadDespachar: 1
+            }])
+        }
 
-    setBusquedaProducto('')
-    setMostrarDropdownProductos(false)
-}
+        setBusquedaProducto('')
+        setMostrarDropdownProductos(false)
+    }
 
     const actualizarCantidad = (productoId, nuevaCantidad) => {
         if (nuevaCantidad <= 0) {
@@ -254,25 +273,107 @@ const agregarProducto = (producto) => {
         }
     }
 
+    // Funciones para Productos Extra
+    const abrirModalExtra = () => {
+        setFormExtra({
+            nombre: '',
+            tipo: 'otro',
+            cantidad: 1,
+            precioUnitario: '',
+            aplicaItbis: true,
+            notas: ''
+        })
+        setMostrarModalExtra(true)
+    }
+
+    const cerrarModalExtra = () => {
+        setMostrarModalExtra(false)
+    }
+
+    const calcularTotalExtra = () => {
+        const precio = parseFloat(formExtra.precioUnitario) || 0
+        const cant = parseFloat(formExtra.cantidad) || 1
+        const base = precio * cant
+        const impuesto = formExtra.aplicaItbis ? (base * parseFloat(datosEmpresa?.impuesto_porcentaje || 18)) / 100 : 0
+        return base + impuesto
+    }
+
+    const agregarProductoExtra = (e) => {
+        e.preventDefault()
+
+        if (!formExtra.nombre.trim()) {
+            alert('Ingresa el nombre del producto extra')
+            return
+        }
+
+        const precio = parseFloat(formExtra.precioUnitario) || 0
+        if (precio <= 0) {
+            alert('El precio debe ser mayor a cero')
+            return
+        }
+
+        const nuevoExtra = {
+            id: Date.now(),
+            nombre: formExtra.nombre.trim(),
+            tipo: formExtra.tipo,
+            cantidad: parseFloat(formExtra.cantidad) || 1,
+            precio_unitario: precio,
+            aplica_itbis: formExtra.aplicaItbis,
+            notas: formExtra.notas.trim() || null
+        }
+
+        setProductosExtra([...productosExtra, nuevoExtra])
+        cerrarModalExtra()
+    }
+
+    const eliminarProductoExtra = (id) => {
+        setProductosExtra(productosExtra.filter(e => e.id !== id))
+    }
+
     const calcularTotales = () => {
         let subtotal = 0
         let descuento = parseFloat(descuentoGlobal) || 0
 
+        // Subtotal de productos
         productosVenta.forEach(producto => {
             const precio = producto.precio_venta_usado || 0
             const cantidad = producto.cantidad || 0
             subtotal += precio * cantidad
         })
 
-        const subtotalConDescuento = subtotal - descuento
+        // Subtotal de extras
+        let subtotalExtras = 0
+        productosExtra.forEach(extra => {
+            subtotalExtras += extra.precio_unitario * extra.cantidad
+        })
+
+        const subtotalConDescuento = subtotal + subtotalExtras - descuento
         const montoGravado = subtotalConDescuento
-        const itbis = datosEmpresa?.impuesto_porcentaje 
-            ? (montoGravado * parseFloat(datosEmpresa.impuesto_porcentaje)) / 100
-            : 0
+        
+        // ITBIS de productos
+        let itbisProductos = 0
+        productosVenta.forEach(producto => {
+            if (producto.aplica_itbis) {
+                const subtotalProd = producto.precio_venta_usado * producto.cantidad
+                itbisProductos += (subtotalProd * parseFloat(datosEmpresa?.impuesto_porcentaje || 18)) / 100
+            }
+        })
+
+        // ITBIS de extras
+        let itbisExtras = 0
+        productosExtra.forEach(extra => {
+            if (extra.aplica_itbis) {
+                const subtotalExtra = extra.precio_unitario * extra.cantidad
+                itbisExtras += (subtotalExtra * parseFloat(datosEmpresa?.impuesto_porcentaje || 18)) / 100
+            }
+        })
+
+        const itbis = itbisProductos + itbisExtras
         const total = subtotalConDescuento + itbis
 
         return {
             subtotal: subtotal.toFixed(2),
+            subtotalExtras: subtotalExtras.toFixed(2),
             descuento: descuento.toFixed(2),
             montoGravado: montoGravado.toFixed(2),
             itbis: itbis.toFixed(2),
@@ -281,8 +382,8 @@ const agregarProducto = (producto) => {
     }
 
     const validarVenta = () => {
-        if (productosVenta.length === 0) {
-            alert('Agrega al menos un producto a la venta')
+        if (productosVenta.length === 0 && productosExtra.length === 0) {
+            alert('Agrega al menos un producto o extra a la venta')
             return false
         }
 
@@ -349,7 +450,15 @@ const agregarProducto = (producto) => {
                     despacho_parcial: p.despacho_parcial,
                     cantidad_despachar: p.despacho_parcial ? p.cantidadDespachar : p.cantidad
                 })),
-                subtotal: parseFloat(totales.subtotal),
+                extras: productosExtra.map(e => ({
+                    nombre: e.nombre,
+                    tipo: e.tipo,
+                    cantidad: e.cantidad,
+                    precio_unitario: e.precio_unitario,
+                    aplica_itbis: e.aplica_itbis,
+                    notas: e.notas
+                })),
+                subtotal: parseFloat(totales.subtotal) + parseFloat(totales.subtotalExtras),
                 descuento: parseFloat(totales.descuento),
                 monto_gravado: parseFloat(totales.montoGravado),
                 itbis: parseFloat(totales.itbis),
@@ -543,14 +652,14 @@ const agregarProducto = (producto) => {
                                                         >
                                                             <ion-icon name="remove-outline"></ion-icon>
                                                         </button>
-<input
-    type="number"
-    min="1"
-    max={producto.cantidad}
-    value={producto.cantidadDespachar || 1}
-    onChange={(e) => actualizarCantidadDespachar(producto.id, parseInt(e.target.value) || 1)}
-    className={estilos.inputCantidadDespacho}
-/>
+                                                        <input
+                                                            type="number"
+                                                            min="1"
+                                                            max={producto.cantidad}
+                                                            value={producto.cantidadDespachar || 1}
+                                                            onChange={(e) => actualizarCantidadDespachar(producto.id, parseInt(e.target.value) || 1)}
+                                                            className={estilos.inputCantidadDespacho}
+                                                        />
                                                         <button
                                                             onClick={() => actualizarCantidadDespachar(producto.id, producto.cantidadDespachar + 1)}
                                                             className={estilos.btnCantidadDespacho}
@@ -572,6 +681,64 @@ const agregarProducto = (producto) => {
                                 ))
                             )}
                         </div>
+                    </div>
+
+                    {/* Sección de Productos Extra */}
+                    <div className={`${estilos.seccion} ${estilos[tema]}`}>
+                        <div className={estilos.headerSeccionExtra}>
+                            <h3 className={estilos.tituloSeccion}>
+                                <ion-icon name="add-circle-outline"></ion-icon>
+                                <span>Productos Extra</span>
+                            </h3>
+                            <button
+                                type="button"
+                                onClick={abrirModalExtra}
+                                className={estilos.btnAgregarExtra}
+                            >
+                                <ion-icon name="add"></ion-icon>
+                                Agregar Extra
+                            </button>
+                        </div>
+
+                        {productosExtra.length === 0 ? (
+                            <p className={estilos.sinExtras}>No hay productos extra agregados</p>
+                        ) : (
+                            <div className={estilos.listaExtras}>
+                                {productosExtra.map((extra) => {
+                                    const cantidad = parseFloat(extra.cantidad) || 1
+                                    const precio = parseFloat(extra.precio_unitario) || 0
+                                    const base = cantidad * precio
+                                    const impuesto = extra.aplica_itbis ? (base * parseFloat(datosEmpresa?.impuesto_porcentaje || 18)) / 100 : 0
+                                    const total = base + impuesto
+                                    
+                                    return (
+                                        <div key={extra.id} className={`${estilos.itemExtra} ${estilos[tema]}`}>
+                                            <div className={estilos.infoExtra}>
+                                                <span className={estilos.nombreExtra}>{extra.nombre}</span>
+                                                <span className={estilos.detalleExtra}>
+                                                    {cantidad} x RD$ {precio.toFixed(2)}
+                                                    {extra.aplica_itbis && ` + ${datosEmpresa?.impuesto_porcentaje || 18}%`}
+                                                </span>
+                                                {extra.notas && (
+                                                    <span className={estilos.notasExtra}>{extra.notas}</span>
+                                                )}
+                                            </div>
+                                            <div className={estilos.accionesExtra}>
+                                                <span className={estilos.totalExtra}>RD$ {total.toFixed(2)}</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => eliminarProductoExtra(extra.id)}
+                                                    className={estilos.btnEliminarExtra}
+                                                    title="Eliminar extra"
+                                                >
+                                                    <ion-icon name="close-circle"></ion-icon>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -762,9 +929,16 @@ const agregarProducto = (producto) => {
                         <h3 className={estilos.tituloResumen}>Resumen de Venta</h3>
                         
                         <div className={estilos.lineaResumen}>
-                            <span>Subtotal:</span>
+                            <span>Subtotal Productos:</span>
                             <span>RD$ {totales.subtotal}</span>
                         </div>
+
+                        {parseFloat(totales.subtotalExtras) > 0 && (
+                            <div className={estilos.lineaResumen}>
+                                <span>Subtotal Extras:</span>
+                                <span>RD$ {totales.subtotalExtras}</span>
+                            </div>
+                        )}
 
                         {parseFloat(totales.descuento) > 0 && (
                             <div className={estilos.lineaResumen}>
@@ -792,7 +966,7 @@ const agregarProducto = (producto) => {
 
                         <button
                             onClick={procesarVenta}
-                            disabled={procesando || productosVenta.length === 0}
+                            disabled={procesando || (productosVenta.length === 0 && productosExtra.length === 0)}
                             className={estilos.btnProcesar}
                         >
                             {procesando ? (
@@ -811,6 +985,7 @@ const agregarProducto = (producto) => {
                 </div>
             </div>
 
+            {/* Modal Cliente Rápido */}
             {mostrarModalCliente && (
                 <div className={estilos.modalOverlay} onClick={() => !procesando && setMostrarModalCliente(false)}>
                     <div className={`${estilos.modal} ${estilos[tema]}`} onClick={(e) => e.stopPropagation()}>
@@ -859,6 +1034,146 @@ const agregarProducto = (producto) => {
                                     disabled={procesando}
                                 >
                                     {procesando ? 'Creando...' : 'Crear Cliente'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Producto Extra */}
+            {mostrarModalExtra && (
+                <div className={estilos.modalOverlay} onClick={cerrarModalExtra}>
+                    <div className={`${estilos.modalExtra} ${estilos[tema]}`} onClick={(e) => e.stopPropagation()}>
+                        <div className={estilos.modalHeader}>
+                            <h3>Agregar Producto Extra</h3>
+                            <button onClick={cerrarModalExtra} className={estilos.btnCerrarModal} type="button">
+                                <ion-icon name="close-outline"></ion-icon>
+                            </button>
+                        </div>
+
+                        <form onSubmit={agregarProductoExtra} className={estilos.formularioExtra}>
+                            <div className={estilos.grupoExtra}>
+                                <label className={estilos.etiquetaExtra}>
+                                    Nombre del Extra <span className={estilos.requeridoExtra}>*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formExtra.nombre}
+                                    onChange={(e) => setFormExtra({...formExtra, nombre: e.target.value})}
+                                    className={estilos.inputExtra}
+                                    placeholder="Ej: Pepperoni extra, Delivery, Propina..."
+                                    required
+                                    autoFocus
+                                />
+                            </div>
+
+                            <div className={estilos.grupoExtra}>
+                                <label className={estilos.etiquetaExtra}>Tipo</label>
+                                <select
+                                    value={formExtra.tipo}
+                                    onChange={(e) => setFormExtra({...formExtra, tipo: e.target.value})}
+                                    className={estilos.selectExtra}
+                                >
+                                    {tiposExtra.map(t => (
+                                        <option key={t.valor} value={t.valor}>{t.nombre}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className={estilos.filaExtra}>
+                                <div className={estilos.grupoExtra}>
+                                    <label className={estilos.etiquetaExtra}>
+                                        Cantidad <span className={estilos.requeridoExtra}>*</span>
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={formExtra.cantidad}
+                                        onChange={(e) => setFormExtra({...formExtra, cantidad: parseFloat(e.target.value) || 1})}
+                                        className={estilos.inputExtra}
+                                        min="0.01"
+                                        step="0.01"
+                                        required
+                                    />
+                                </div>
+
+                                <div className={estilos.grupoExtra}>
+                                    <label className={estilos.etiquetaExtra}>
+                                        Precio Unitario <span className={estilos.requeridoExtra}>*</span>
+                                    </label>
+                                    <div className={estilos.inputWrapperExtra}>
+                                        <span className={estilos.prefijoExtra}>RD$</span>
+                                        <input
+                                            type="number"
+                                            value={formExtra.precioUnitario}
+                                            onChange={(e) => setFormExtra({...formExtra, precioUnitario: e.target.value})}
+                                            className={estilos.inputExtraPrecio}
+                                            placeholder="0.00"
+                                            min="0"
+                                            step="0.01"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className={estilos.grupoExtra}>
+                                <label className={estilos.checkboxLabelExtra}>
+                                    <input
+                                        type="checkbox"
+                                        checked={formExtra.aplicaItbis}
+                                        onChange={(e) => setFormExtra({...formExtra, aplicaItbis: e.target.checked})}
+                                        className={estilos.checkboxExtra}
+                                    />
+                                    <span>Aplica {datosEmpresa?.impuesto_porcentaje || 18}% de impuesto</span>
+                                </label>
+                            </div>
+
+                            {formExtra.precioUnitario && (
+                                <div className={estilos.resumenExtra}>
+                                    <div className={estilos.lineaResumenExtra}>
+                                        <span>Subtotal:</span>
+                                        <span>RD$ {((parseFloat(formExtra.precioUnitario) || 0) * (parseFloat(formExtra.cantidad) || 1)).toFixed(2)}</span>
+                                    </div>
+                                    {formExtra.aplicaItbis && (
+                                        <div className={estilos.lineaResumenExtra}>
+                                            <span>Impuesto ({datosEmpresa?.impuesto_porcentaje || 18}%):</span>
+                                            <span>RD$ {(((parseFloat(formExtra.precioUnitario) || 0) * (parseFloat(formExtra.cantidad) || 1)) * (datosEmpresa?.impuesto_porcentaje || 18) / 100).toFixed(2)}</span>
+                                        </div>
+                                    )}
+                                    <div className={estilos.lineaResumenTotalExtra}>
+                                        <span>Total:</span>
+                                        <span>RD$ {calcularTotalExtra().toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className={estilos.grupoExtra}>
+                                <label className={estilos.etiquetaExtra}>Notas (Opcional)</label>
+                                <textarea
+                                    value={formExtra.notas}
+                                    onChange={(e) => setFormExtra({...formExtra, notas: e.target.value})}
+                                    className={estilos.textareaExtra}
+                                    placeholder="Observaciones adicionales..."
+                                    rows="2"
+                                />
+                            </div>
+
+                            <div className={estilos.accionesExtra}>
+                                <button
+                                    type="button"
+                                    onClick={cerrarModalExtra}
+                                    className={estilos.botonCancelarExtra}
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="submit"
+                                    className={estilos.botonAgregarExtraModal}
+                                    disabled={!formExtra.nombre.trim() || !formExtra.precioUnitario || parseFloat(formExtra.precioUnitario) <= 0}
+                                >
+                                    <ion-icon name="add-circle-outline"></ion-icon>
+                                    Agregar Extra
                                 </button>
                             </div>
                         </form>

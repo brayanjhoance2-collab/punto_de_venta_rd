@@ -898,3 +898,433 @@
         min-width: 800px;
     }
 }
+@media (max-width: 768px) {
+    .contenedor {
+        padding: 15px 8px;
+        overflow-x: hidden;
+        width: 100%;
+        max-width: 100vw;
+    }
+
+    .contenedor *,
+    .contenedor *::before,
+    .contenedor *::after {
+        box-sizing: border-box;
+    }
+
+    .titulo {
+        font-size: 24px;
+    }
+
+    .subtitulo {
+        font-size: 14px;
+    }
+
+    .estadisticasPrincipales {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        width: 100%;
+    }
+
+    .estadCard {
+        padding: 20px;
+        width: 100%;
+    }
+
+    .estadIcono {
+        width: 56px;
+        height: 56px;
+    }
+
+    .estadIcono ion-icon {
+        font-size: 28px;
+    }
+
+    .estadLabel {
+        font-size: 12px;
+    }
+
+    .estadValor {
+        font-size: 24px;
+    }
+
+    .estadDetalle {
+        font-size: 12px;
+    }
+
+    .fila {
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+
+    .panel {
+        width: 100%;
+    }
+
+    .panelHeader {
+        padding: 16px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .panelTitulo {
+        font-size: 16px;
+    }
+
+    .panelTitulo ion-icon {
+        font-size: 20px;
+    }
+
+    .panelControles {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btnPeriodo {
+        flex: 1;
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .panelBody {
+        padding: 16px;
+    }
+
+    .panelVacio {
+        padding: 30px 20px;
+    }
+
+    .panelVacio ion-icon {
+        font-size: 40px;
+    }
+
+    .listaVentas,
+    .listaProductos {
+        gap: 10px;
+    }
+
+    .ventaItem,
+    .productoItem {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .ventaIcono,
+    .productoIcono {
+        width: 36px;
+        height: 36px;
+    }
+
+    .ventaIcono ion-icon,
+    .productoIcono ion-icon {
+        font-size: 18px;
+    }
+
+    .ventaNcf,
+    .productoNombre {
+        font-size: 13px;
+    }
+
+    .ventaCliente,
+    .productoCategoria {
+        font-size: 11px;
+    }
+
+    .ventaMonto,
+    .productoMonto {
+        font-size: 14px;
+    }
+
+    .ventaFecha {
+        font-size: 11px;
+    }
+
+    .panelFooter {
+        padding: 14px 16px;
+    }
+
+    .btnVerTodo {
+        font-size: 13px;
+        padding: 9px;
+    }
+
+    .btnVerTodo ion-icon {
+        font-size: 16px;
+    }
+
+    .resumenVentas {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        width: 100%;
+    }
+
+    .resumenItem {
+        padding: 14px;
+        width: 100%;
+    }
+
+    .resumenLabel {
+        font-size: 11px;
+    }
+
+    .resumenValor {
+        font-size: 20px;
+    }
+
+    .resumenCantidad {
+        font-size: 11px;
+    }
+
+    .alertas {
+        gap: 10px;
+    }
+
+    .alerta {
+        padding: 14px;
+    }
+
+    .alerta ion-icon {
+        font-size: 22px;
+    }
+
+    .alertaTitulo {
+        font-size: 13px;
+    }
+
+    .alertaDescripcion {
+        font-size: 11px;
+    }
+
+    .tablaClientes {
+        overflow-x: auto;
+        width: 100%;
+    }
+
+    .tablaHeader,
+    .tablaFila {
+        min-width: 800px;
+    }
+
+    .tablaHeader {
+        padding: 10px 12px;
+    }
+
+    .tablaFila {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .contenedor {
+        padding: 12px 6px;
+        max-width: 100vw;
+    }
+
+    .titulo {
+        font-size: 20px;
+    }
+
+    .subtitulo {
+        font-size: 13px;
+    }
+
+    .estadisticasPrincipales {
+        gap: 12px;
+    }
+
+    .estadCard {
+        padding: 16px;
+    }
+
+    .estadIcono {
+        width: 50px;
+        height: 50px;
+    }
+
+    .estadIcono ion-icon {
+        font-size: 24px;
+    }
+
+    .estadLabel {
+        font-size: 11px;
+    }
+
+    .estadValor {
+        font-size: 20px;
+    }
+
+    .estadDetalle {
+        font-size: 11px;
+    }
+
+    .panelHeader {
+        padding: 14px;
+    }
+
+    .panelTitulo {
+        font-size: 15px;
+    }
+
+    .panelTitulo ion-icon {
+        font-size: 18px;
+    }
+
+    .btnPeriodo {
+        padding: 7px 10px;
+        font-size: 11px;
+    }
+
+    .panelBody {
+        padding: 14px;
+    }
+
+    .ventaItem,
+    .productoItem {
+        padding: 9px;
+        gap: 8px;
+    }
+
+    .ventaIcono,
+    .productoIcono {
+        width: 32px;
+        height: 32px;
+    }
+
+    .ventaIcono ion-icon,
+    .productoIcono ion-icon {
+        font-size: 16px;
+    }
+
+    .ventaNcf,
+    .productoNombre {
+        font-size: 12px;
+    }
+
+    .ventaCliente,
+    .productoCategoria {
+        font-size: 10px;
+    }
+
+    .ventaMonto,
+    .productoMonto {
+        font-size: 13px;
+    }
+
+    .ventaFecha {
+        font-size: 10px;
+    }
+
+    .productoVendido,
+    .productoStock {
+        font-size: 12px;
+    }
+
+    .productoMinimo {
+        font-size: 11px;
+    }
+
+    .panelFooter {
+        padding: 12px 14px;
+    }
+
+    .btnVerTodo {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .resumenVentas {
+        gap: 10px;
+    }
+
+    .resumenItem {
+        padding: 12px;
+    }
+
+    .resumenLabel {
+        font-size: 10px;
+    }
+
+    .resumenValor {
+        font-size: 18px;
+    }
+
+    .resumenCantidad {
+        font-size: 10px;
+    }
+
+    .alertas {
+        gap: 8px;
+    }
+
+    .alerta {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .alerta ion-icon {
+        font-size: 20px;
+    }
+
+    .alertaTitulo {
+        font-size: 12px;
+    }
+
+    .alertaDescripcion {
+        font-size: 10px;
+    }
+
+    .tablaHeader,
+    .tablaFila {
+        min-width: 750px;
+        gap: 12px;
+    }
+
+    .tablaHeader {
+        padding: 8px 10px;
+        font-size: 11px;
+    }
+
+    .tablaFila {
+        padding: 10px;
+    }
+
+    .clienteNombre > span:first-child {
+        font-size: 13px;
+    }
+
+    .clienteEmail {
+        font-size: 11px;
+    }
+
+    .clienteDocumento {
+        font-size: 12px;
+    }
+
+    .clienteMonto {
+        font-size: 13px;
+    }
+
+    .clientePuntos {
+        font-size: 13px;
+        padding: 5px 10px;
+    }
+
+    .clienteFecha {
+        font-size: 11px;
+    }
+
+    .cargando,
+    .error {
+        min-height: 300px;
+        font-size: 14px;
+        padding: 20px;
+    }
+
+    .iconoCargando {
+        font-size: 40px;
+    }
+
+    .error ion-icon {
+        font-size: 56px;
+    }
+}

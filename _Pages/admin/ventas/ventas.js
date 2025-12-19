@@ -20,6 +20,7 @@ export default function VentasAdmin() {
     const [busqueda, setBusqueda] = useState('')
     const [fechaInicio, setFechaInicio] = useState('')
     const [fechaFin, setFechaFin] = useState('')
+    const [vistaMovil, setVistaMovil] = useState(false)
 
     useEffect(() => {
         const temaLocal = localStorage.getItem('tema') || 'light'
@@ -37,6 +38,17 @@ export default function VentasAdmin() {
             window.removeEventListener('temaChange', manejarCambioTema)
             window.removeEventListener('storage', manejarCambioTema)
         }
+    }, [])
+
+    useEffect(() => {
+        const checkVistaMovil = () => {
+            setVistaMovil(window.innerWidth <= 1024)
+        }
+        
+        checkVistaMovil()
+        window.addEventListener('resize', checkVistaMovil)
+        
+        return () => window.removeEventListener('resize', checkVistaMovil)
     }, [])
 
     useEffect(() => {
@@ -435,61 +447,48 @@ export default function VentasAdmin() {
                     <ion-icon name="receipt-outline"></ion-icon>
                     <span>No hay ventas que coincidan con tu busqueda</span>
                 </div>
-            ) : (
-                <div className={estilos.tabla}>
-                    <div className={`${estilos.tablaHeader} ${estilos[tema]}`}>
-                        <div className={estilos.columna}>Vendedor</div>
-                        <div className={estilos.columna}>Numero</div>
-                        <div className={estilos.columna}>Cliente</div>
-                        <div className={estilos.columna}>Metodo Pago</div>
-                        <div className={estilos.columna}>Subtotal</div>
-                        <div className={estilos.columna}>ITBIS</div>
-                        <div className={estilos.columna}>Total</div>
-                        <div className={estilos.columna}>Estado</div>
-                        <div className={estilos.columnaAcciones}>Acciones</div>
-                    </div>
-
-                    <div className={estilos.tablaBody}>
-                        {ventasFiltradas.map((venta) => (
-                            <div key={venta.id} className={`${estilos.fila} ${estilos[tema]}`}>
-                                <div className={estilos.columna}>
-                                    <span className={estilos.vendedor}>{venta.vendedor_nombre || 'Sin vendedor'}</span>
-                                </div>
-                                <div className={estilos.columna}>
-                                    <span className={estilos.numero}>{venta.numero_interno}</span>
-                                </div>
-                                <div className={estilos.columna}>
-                                    <span className={estilos.cliente}>
-                                        {venta.cliente_nombre || 'Consumidor Final'}
-                                    </span>
-                                </div>
-                                <div className={estilos.columna}>
-                                    <span className={`${estilos.badgeMetodo} ${estilos[getMetodoPagoBadge(venta.metodo_pago).color]}`}>
-                                        {getMetodoPagoBadge(venta.metodo_pago).texto}
-                                    </span>
-                                </div>
-                                <div className={estilos.columna}>
-                                    <span className={estilos.monto}>{formatearMoneda(venta.subtotal)}</span>
-                                </div>
-                                <div className={estilos.columna}>
-                                    <span className={estilos.monto}>{formatearMoneda(venta.itbis)}</span>
-                                </div>
-                                <div className={estilos.columna}>
-                                    <span className={estilos.montoTotal}>{formatearMoneda(venta.total)}</span>
-                                </div>
-                                <div className={estilos.columna}>
+            ) : vistaMovil ? (
+                <div className={estilos.listaMovil}>
+                    {ventasFiltradas.map((venta) => {
+                        const tieneDespachoPendiente = venta.tipo_entrega === 'parcial' && venta.despacho_completo === 0 && venta.estado === 'emitida'
+                        
+                        return (
+                            <div key={venta.id} className={`${estilos.cardMovil} ${estilos[tema]}`}>
+                                <div className={estilos.cardHeader}>
+                                    <div className={estilos.cardHeaderInfo}>
+                                        <span className={estilos.numeroMovil}>{venta.numero_interno}</span>
+                                        <span className={estilos.montoTotalMovil}>{formatearMoneda(venta.total)}</span>
+                                    </div>
                                     <div className={estilos.estadoContainer}>
                                         <span className={`${estilos.badgeEstado} ${estilos[venta.estado]}`}>
                                             {venta.estado === 'emitida' ? 'Emitida' : venta.estado === 'anulada' ? 'Anulada' : 'Pendiente'}
                                         </span>
-                                        {venta.tipo_entrega === 'parcial' && !venta.despacho_completo && venta.estado === 'emitida' && (
+                                        {tieneDespachoPendiente && (
                                             <span className={estilos.badgePendiente}>
-                                                D Pendiente
+                                                Por Desp.
                                             </span>
                                         )}
                                     </div>
                                 </div>
-                                <div className={estilos.columnaAcciones}>
+
+                                <div className={estilos.cardBody}>
+                                    <div className={estilos.cardRow}>
+                                        <span className={estilos.cardLabel}>Vendedor:</span>
+                                        <span className={estilos.cardValue}>{venta.vendedor_nombre || 'Sin vendedor'}</span>
+                                    </div>
+                                    <div className={estilos.cardRow}>
+                                        <span className={estilos.cardLabel}>Cliente:</span>
+                                        <span className={estilos.cardValue}>{venta.cliente_nombre || 'Consumidor Final'}</span>
+                                    </div>
+                                    <div className={estilos.cardRow}>
+                                        <span className={estilos.cardLabel}>Metodo:</span>
+                                        <span className={`${estilos.badgeMetodo} ${estilos[getMetodoPagoBadge(venta.metodo_pago).color]}`}>
+                                            {getMetodoPagoBadge(venta.metodo_pago).texto}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className={estilos.cardAcciones}>
                                     <Link
                                         href={`/admin/ventas/ver/${venta.id}`}
                                         className={estilos.btnIcono}
@@ -504,7 +503,7 @@ export default function VentasAdmin() {
                                     >
                                         <ion-icon name="print-outline"></ion-icon>
                                     </Link>
-                                    {venta.tipo_entrega === 'parcial' && !venta.despacho_completo && venta.estado === 'emitida' && (
+                                    {tieneDespachoPendiente && (
                                         <Link
                                             href={`/admin/ventas/despachar/${venta.id}`}
                                             className={`${estilos.btnIcono} ${estilos.despachar}`}
@@ -525,7 +524,104 @@ export default function VentasAdmin() {
                                     )}
                                 </div>
                             </div>
-                        ))}
+                        )
+                    })}
+                </div>
+            ) : (
+                <div className={estilos.tabla}>
+                    <div className={`${estilos.tablaHeader} ${estilos[tema]}`}>
+                        <div className={estilos.columna}>Vendedor</div>
+                        <div className={estilos.columna}>Numero</div>
+                        <div className={estilos.columna}>Cliente</div>
+                        <div className={estilos.columna}>Metodo Pago</div>
+                        <div className={estilos.columna}>Subtotal</div>
+                        <div className={estilos.columna}>ITBIS</div>
+                        <div className={estilos.columna}>Total</div>
+                        <div className={estilos.columna}>Estado</div>
+                        <div className={estilos.columnaAcciones}>Acciones</div>
+                    </div>
+
+                    <div className={estilos.tablaBody}>
+                        {ventasFiltradas.map((venta) => {
+                            const tieneDespachoPendiente = venta.tipo_entrega === 'parcial' && venta.despacho_completo === 0 && venta.estado === 'emitida'
+                            
+                            return (
+                                <div key={venta.id} className={`${estilos.fila} ${estilos[tema]}`}>
+                                    <div className={estilos.columna}>
+                                        <span className={estilos.vendedor}>{venta.vendedor_nombre || 'Sin vendedor'}</span>
+                                    </div>
+                                    <div className={estilos.columna}>
+                                        <span className={estilos.numero}>{venta.numero_interno}</span>
+                                    </div>
+                                    <div className={estilos.columna}>
+                                        <span className={estilos.cliente}>
+                                            {venta.cliente_nombre || 'Consumidor Final'}
+                                        </span>
+                                    </div>
+                                    <div className={estilos.columna}>
+                                        <span className={`${estilos.badgeMetodo} ${estilos[getMetodoPagoBadge(venta.metodo_pago).color]}`}>
+                                            {getMetodoPagoBadge(venta.metodo_pago).texto}
+                                        </span>
+                                    </div>
+                                    <div className={estilos.columna}>
+                                        <span className={estilos.monto}>{formatearMoneda(venta.subtotal)}</span>
+                                    </div>
+                                    <div className={estilos.columna}>
+                                        <span className={estilos.monto}>{formatearMoneda(venta.itbis)}</span>
+                                    </div>
+                                    <div className={estilos.columna}>
+                                        <span className={estilos.montoTotal}>{formatearMoneda(venta.total)}</span>
+                                    </div>
+                                    <div className={estilos.columna}>
+                                        <div className={estilos.estadoContainer}>
+                                            <span className={`${estilos.badgeEstado} ${estilos[venta.estado]}`}>
+                                                {venta.estado === 'emitida' ? 'Emitida' : venta.estado === 'anulada' ? 'Anulada' : 'Pendiente'}
+                                            </span>
+                                            {tieneDespachoPendiente && (
+                                                <span className={estilos.badgePendiente}>
+                                                    Por Desp.
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className={estilos.columnaAcciones}>
+                                        <Link
+                                            href={`/admin/ventas/ver/${venta.id}`}
+                                            className={estilos.btnIcono}
+                                            title="Ver detalles"
+                                        >
+                                            <ion-icon name="eye-outline"></ion-icon>
+                                        </Link>
+                                        <Link
+                                            href={`/admin/ventas/imprimir/${venta.id}`}
+                                            className={`${estilos.btnIcono} ${estilos.imprimir}`}
+                                            title="Imprimir"
+                                        >
+                                            <ion-icon name="print-outline"></ion-icon>
+                                        </Link>
+                                        {tieneDespachoPendiente && (
+                                            <Link
+                                                href={`/admin/ventas/despachar/${venta.id}`}
+                                                className={`${estilos.btnIcono} ${estilos.despachar}`}
+                                                title="Despachar pedido"
+                                            >
+                                                <ion-icon name="cube-outline"></ion-icon>
+                                            </Link>
+                                        )}
+                                        {venta.estado === 'emitida' && (
+                                            <button
+                                                className={`${estilos.btnIcono} ${estilos.anular}`}
+                                                onClick={() => manejarAnularVenta(venta.id, venta.numero_interno)}
+                                                disabled={procesando}
+                                                title="Anular venta"
+                                            >
+                                                <ion-icon name="close-circle-outline"></ion-icon>
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            )
+                        })}
                     </div>
                 </div>
             )}

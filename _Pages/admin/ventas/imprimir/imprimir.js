@@ -23,7 +23,8 @@ export default function ImprimirVenta() {
         mostrarMetodoPago: true,
         mostrarNotas: true,
         mostrarMensajeFinal: true,
-        mostrarCodigoBarras: true
+        mostrarCodigoBarras: true,
+        mostrarExtras: true
     })
 
     useEffect(() => {
@@ -234,6 +235,16 @@ export default function ImprimirVenta() {
                         </label>
 
                         <label className={estilos.opcionLabel}>
+                            <span>Extras</span>
+                            <button
+                                className={`${estilos.switch} ${opciones.mostrarExtras ? estilos.activo : ''}`}
+                                onClick={() => toggleOpcion('mostrarExtras')}
+                            >
+                                <span className={estilos.switchSlider}></span>
+                            </button>
+                        </label>
+
+                        <label className={estilos.opcionLabel}>
                             <span>Mensaje Final</span>
                             <button
                                 className={`${estilos.switch} ${opciones.mostrarMensajeFinal ? estilos.activo : ''}`}
@@ -336,6 +347,42 @@ export default function ImprimirVenta() {
                             })}
                         </tbody>
                     </table>
+
+                    {opciones.mostrarExtras && venta.extras && venta.extras.length > 0 && (
+                        <>
+                            <div className={estilos.linea}></div>
+                            <div className={estilos.seccionExtras}>
+                                <p className={estilos.tituloExtras}><strong>EXTRAS</strong></p>
+                                <table className={estilos.productos}>
+                                    <thead>
+                                        <tr>
+                                            <th>Cant</th>
+                                            <th>Descripción</th>
+                                            <th>Precio</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {venta.extras.map((extra, index) => (
+                                            <tr key={index}>
+                                                <td className={estilos.centrado}>{extra.cantidad}</td>
+                                                <td>
+                                                    {extra.nombre}
+                                                    {extra.tipo && (
+                                                        <div style={{fontSize: '0.85em', color: '#64748b', marginTop: '2px'}}>
+                                                            {extra.tipo}
+                                                        </div>
+                                                    )}
+                                                </td>
+                                                <td className={estilos.derecha}>{formatearMoneda(extra.precio_unitario)}</td>
+                                                <td className={estilos.derecha}>{formatearMoneda(extra.monto_total)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </>
+                    )}
 
                     <div className={estilos.linea}></div>
 

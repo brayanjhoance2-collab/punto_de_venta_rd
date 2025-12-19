@@ -300,6 +300,7 @@ export async function crearVenta(datosVenta) {
         connection = await db.getConnection()
         await connection.beginTransaction()
 
+        // Obtener tipo de comprobante y generar NCF
         const [tipoComprobante] = await connection.execute(
             `SELECT 
                 id,
@@ -342,6 +343,7 @@ export async function crearVenta(datosVenta) {
             [datosVenta.tipo_comprobante_id]
         )
 
+        // Generar número interno
         const [ultimaVenta] = await connection.execute(
             `SELECT MAX(CAST(SUBSTRING(numero_interno, 6) AS UNSIGNED)) as ultimo_numero
             FROM ventas
@@ -351,6 +353,7 @@ export async function crearVenta(datosVenta) {
 
         const numeroInterno = `VENTA${String((ultimaVenta[0].ultimo_numero || 0) + 1).padStart(6, '0')}`
 
+        // Verificar stock de productos
         for (const producto of datosVenta.productos) {
             const [stockActual] = await connection.execute(
                 `SELECT stock FROM productos WHERE id = ? AND empresa_id = ?`,
@@ -376,9 +379,29 @@ export async function crearVenta(datosVenta) {
             }
         }
 
+        // Obtener caja activa
+        const fechaHoy = new Date().toISOString().split('T')[0]
+        const [cajaActiva] = await connection.execute(
+            `SELECT id FROM cajas 
+            WHERE empresa_id = ? AND usuario_id = ? AND fecha_caja = ? AND estado = 'abierta'
+            LIMIT 1`,
+            [empresaId, userId, fechaHoy]
+        )
+
+        if (cajaActiva.length === 0) {
+            await connection.rollback()
+            connection.release()
+            return {
+                success: false,
+                mensaje: 'No tienes una caja abierta. Abre una caja antes de realizar ventas.'
+            }
+        }
+
+        const cajaId = cajaActiva[0].id
         const hayDespachoParcial = datosVenta.tipo_entrega === 'parcial'
         const despachoCompleto = !hayDespachoParcial
 
+        // Insertar venta
         const [resultadoVenta] = await connection.execute(
             `INSERT INTO ventas (
                 empresa_id,
@@ -387,6 +410,7 @@ export async function crearVenta(datosVenta) {
                 numero_interno,
                 usuario_id,
                 cliente_id,
+                caja_id,
                 subtotal,
                 descuento,
                 monto_gravado,
@@ -399,7 +423,7 @@ export async function crearVenta(datosVenta) {
                 cambio,
                 estado,
                 notas
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'emitida', ?)`,
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'emitida', ?)`,
             [
                 empresaId,
                 datosVenta.tipo_comprobante_id,
@@ -407,6 +431,7 @@ export async function crearVenta(datosVenta) {
                 numeroInterno,
                 userId,
                 datosVenta.cliente_id,
+                cajaId,
                 datosVenta.subtotal,
                 datosVenta.descuento,
                 datosVenta.monto_gravado,
@@ -423,6 +448,7 @@ export async function crearVenta(datosVenta) {
 
         const ventaId = resultadoVenta.insertId
 
+        // Insertar detalle de productos
         for (const producto of datosVenta.productos) {
             const subtotalProducto = producto.cantidad * producto.precio_unitario
             const montoGravado = subtotalProducto
@@ -464,6 +490,7 @@ export async function crearVenta(datosVenta) {
                 ]
             )
 
+            // Actualizar stock
             await connection.execute(
                 `UPDATE productos 
                 SET stock = stock - ? 
@@ -471,6 +498,7 @@ export async function crearVenta(datosVenta) {
                 [cantidadDespachada, producto.producto_id, empresaId]
             )
 
+            // Registrar movimiento de inventario
             const [productoActualizado] = await connection.execute(
                 `SELECT stock FROM productos WHERE id = ?`,
                 [producto.producto_id]
@@ -501,6 +529,57 @@ export async function crearVenta(datosVenta) {
             )
         }
 
+        // Insertar productos extra si existen
+        if (datosVenta.extras && datosVenta.extras.length > 0) {
+            const [empresa] = await connection.execute(
+                `SELECT impuesto_porcentaje FROM empresas WHERE id = ?`,
+                [empresaId]
+            )
+            const impuestoPorcentaje = parseFloat(empresa[0].impuesto_porcentaje)
+
+            for (const extra of datosVenta.extras) {
+                const cantidad = parseFloat(extra.cantidad) || 1
+                const precioUnitario = parseFloat(extra.precio_unitario) || 0
+                const montoBase = cantidad * precioUnitario
+                const montoImpuesto = extra.aplica_itbis ? (montoBase * impuestoPorcentaje) / 100 : 0
+                const montoTotal = montoBase + montoImpuesto
+
+                await connection.execute(
+                    `INSERT INTO venta_extras (
+                        venta_id,
+                        empresa_id,
+                        usuario_id,
+                        tipo,
+                        nombre,
+                        cantidad,
+                        precio_unitario,
+                        aplica_itbis,
+                        impuesto_porcentaje,
+                        monto_base,
+                        monto_impuesto,
+                        monto_total,
+                        notas
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [
+                        ventaId,
+                        empresaId,
+                        userId,
+                        extra.tipo || 'otro',
+                        extra.nombre,
+                        cantidad,
+                        precioUnitario,
+                        extra.aplica_itbis ? 1 : 0,
+                        impuestoPorcentaje,
+                        montoBase,
+                        montoImpuesto,
+                        montoTotal,
+                        extra.notas
+                    ]
+                )
+            }
+        }
+
+        // Crear despacho si hay despacho parcial
         if (hayDespachoParcial) {
             const [resultadoDespacho] = await connection.execute(
                 `INSERT INTO despachos (
@@ -536,43 +615,7 @@ export async function crearVenta(datosVenta) {
             }
         }
 
-        const fechaHoy = new Date().toISOString().split('T')[0]
-        await connection.execute(
-            `UPDATE cajas 
-            SET total_ventas = total_ventas + ? 
-            WHERE empresa_id = ? 
-            AND usuario_id = ? 
-            AND fecha_caja = ?
-            AND estado = 'abierta'`,
-            [datosVenta.total, empresaId, userId, fechaHoy]
-        )
-
-        if (datosVenta.metodo_pago === 'mixto' && datosVenta.montos_metodos) {
-            for (const [metodo, monto] of Object.entries(datosVenta.montos_metodos)) {
-                const columna = `total_${metodo}`
-                await connection.execute(
-                    `UPDATE cajas 
-                    SET ${columna} = ${columna} + ? 
-                    WHERE empresa_id = ? 
-                    AND usuario_id = ? 
-                    AND fecha_caja = ?
-                    AND estado = 'abierta'`,
-                    [parseFloat(monto), empresaId, userId, fechaHoy]
-                )
-            }
-        } else {
-            const columna = `total_${datosVenta.metodo_pago}`
-            await connection.execute(
-                `UPDATE cajas 
-                SET ${columna} = ${columna} + ? 
-                WHERE empresa_id = ? 
-                AND usuario_id = ? 
-                AND fecha_caja = ?
-                AND estado = 'abierta'`,
-                [datosVenta.total, empresaId, userId, fechaHoy]
-            )
-        }
-
+        // Actualizar totales de cliente
         if (datosVenta.cliente_id) {
             await connection.execute(
                 `UPDATE clientes 

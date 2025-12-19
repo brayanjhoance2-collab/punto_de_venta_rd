@@ -1194,4 +1194,513 @@
         width: 100%;
         justify-content: center;
     }
+}.contenedor *,
+.contenedor *::before,
+.contenedor *::after {
+    box-sizing: border-box;
+}
+
+.contenedor {
+    overflow-x: hidden;
+    width: 100%;
+}
+
+.textarea,
+.inputCantidad {
+    box-sizing: border-box;
+}
+
+@media (max-width: 1200px) {
+    .contenido {
+        grid-template-columns: 1fr;
+    }
+
+    .resumen {
+        position: relative;
+        top: 0;
+    }
+
+    .infoVenta {
+        grid-template-columns: 1fr;
+    }
+
+    .historialLista {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .contenedor {
+        padding: 15px 10px;
+    }
+
+    .titulo {
+        font-size: 24px;
+    }
+
+    .subtitulo {
+        font-size: 14px;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    .headerBotones {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .btnHistorial,
+    .btnCancelar {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .historialContainer {
+        padding: 20px;
+    }
+
+    .historialHeader {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .historialTitulo {
+        font-size: 16px;
+    }
+
+    .historialTitulo ion-icon {
+        font-size: 22px;
+    }
+
+    .historialLista {
+        gap: 15px;
+    }
+
+    .despachoCard {
+        padding: 16px;
+    }
+
+    .despachoHeader {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .despachoNumero {
+        font-size: 15px;
+    }
+
+    .despachoInfo {
+        gap: 8px;
+    }
+
+    .infoRow {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .infoValor {
+        text-align: left;
+    }
+
+    .despachoProductos {
+        padding-top: 12px;
+    }
+
+    .productoDespacho {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .seccion {
+        padding: 16px;
+    }
+
+    .headerSeccion {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .tituloSeccion {
+        font-size: 16px;
+    }
+
+    .tituloSeccion ion-icon {
+        font-size: 22px;
+    }
+
+    .btnDespacharTodo {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .infoVenta {
+        gap: 12px;
+    }
+
+    .infoItem {
+        gap: 3px;
+    }
+
+    .infoLabel {
+        font-size: 12px;
+    }
+
+    .infoValor {
+        font-size: 14px;
+    }
+
+    .listaProductos {
+        gap: 12px;
+    }
+
+    .productoItem {
+        padding: 16px;
+        gap: 12px;
+    }
+
+    .productoNombre {
+        font-size: 15px;
+    }
+
+    .productoDetalles {
+        gap: 12px;
+    }
+
+    .detalle {
+        font-size: 12px;
+    }
+
+    .productoControles {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .controlCantidad {
+        justify-content: center;
+    }
+
+    .btnCantidad {
+        width: 34px;
+        height: 34px;
+    }
+
+    .btnCantidad ion-icon {
+        font-size: 18px;
+    }
+
+    .inputCantidad {
+        width: 65px;
+        padding: 7px 8px;
+        font-size: 15px;
+    }
+
+    .btnDespacharProducto {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .textarea {
+        font-size: 13px;
+        padding: 10px 14px;
+    }
+
+    .resumen {
+        padding: 20px;
+    }
+
+    .tituloResumen {
+        font-size: 16px;
+    }
+
+    .resumenItem {
+        font-size: 13px;
+    }
+
+    .resumenItem strong {
+        font-size: 15px;
+    }
+
+    .resumenItem.destacado {
+        padding: 10px;
+    }
+
+    .resumenItem.destacado strong {
+        font-size: 18px;
+    }
+
+    .btnProcesar {
+        padding: 14px 20px;
+        font-size: 15px;
+    }
+
+    .btnProcesar ion-icon {
+        font-size: 22px;
+    }
+
+    .infoBox {
+        padding: 16px;
+        gap: 10px;
+    }
+
+    .infoBox ion-icon {
+        font-size: 22px;
+    }
+
+    .infoBox p {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .contenedor {
+        padding: 12px 8px;
+    }
+
+    .titulo {
+        font-size: 20px;
+    }
+
+    .subtitulo {
+        font-size: 13px;
+    }
+
+    .btnHistorial,
+    .btnCancelar {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .btnHistorial ion-icon,
+    .btnCancelar ion-icon {
+        font-size: 20px;
+    }
+
+    .historialContainer {
+        padding: 16px;
+    }
+
+    .historialTitulo {
+        font-size: 15px;
+    }
+
+    .historialTitulo ion-icon {
+        font-size: 20px;
+    }
+
+    .btnCerrarHistorial {
+        width: 32px;
+        height: 32px;
+    }
+
+    .btnCerrarHistorial ion-icon {
+        font-size: 22px;
+    }
+
+    .historialLista {
+        gap: 12px;
+    }
+
+    .despachoCard {
+        padding: 14px;
+    }
+
+    .despachoHeader {
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+    }
+
+    .despachoNumero {
+        font-size: 14px;
+    }
+
+    .despachoNumero ion-icon {
+        font-size: 18px;
+    }
+
+    .despachoEstado {
+        font-size: 11px;
+        padding: 3px 10px;
+    }
+
+    .infoRow {
+        font-size: 13px;
+    }
+
+    .despachoProductos {
+        padding-top: 10px;
+    }
+
+    .despachoProductos h4 {
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
+
+    .productoDespacho {
+        padding: 6px 0;
+        font-size: 12px;
+    }
+
+    .productoCantidadHistorial {
+        font-size: 12px;
+        padding: 2px 6px;
+    }
+
+    .seccion {
+        padding: 14px;
+    }
+
+    .tituloSeccion {
+        font-size: 15px;
+    }
+
+    .tituloSeccion ion-icon {
+        font-size: 20px;
+    }
+
+    .btnDespacharTodo {
+        padding: 7px 14px;
+        font-size: 12px;
+    }
+
+    .btnDespacharTodo ion-icon {
+        font-size: 16px;
+    }
+
+    .infoLabel {
+        font-size: 11px;
+    }
+
+    .infoValor {
+        font-size: 13px;
+    }
+
+    .productoItem {
+        padding: 14px;
+    }
+
+    .productoNombre {
+        font-size: 14px;
+    }
+
+    .detalle {
+        font-size: 11px;
+    }
+
+    .detalle.pendiente {
+        padding: 3px 8px;
+    }
+
+    .btnCantidad {
+        width: 32px;
+        height: 32px;
+    }
+
+    .btnCantidad ion-icon {
+        font-size: 16px;
+    }
+
+    .inputCantidad {
+        width: 60px;
+        padding: 6px 7px;
+        font-size: 14px;
+    }
+
+    .btnDespacharProducto {
+        padding: 9px 18px;
+        font-size: 13px;
+    }
+
+    .btnDespacharProducto ion-icon {
+        font-size: 16px;
+    }
+
+    .textarea {
+        font-size: 12px;
+        padding: 9px 12px;
+        min-height: 90px;
+    }
+
+    .resumen {
+        padding: 16px;
+    }
+
+    .tituloResumen {
+        font-size: 15px;
+        margin-bottom: 16px;
+    }
+
+    .resumenItem {
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+
+    .resumenItem strong {
+        font-size: 14px;
+    }
+
+    .resumenItem.destacado {
+        padding: 9px;
+        margin: 12px 0;
+    }
+
+    .resumenItem.destacado strong {
+        font-size: 16px;
+    }
+
+    .separador {
+        margin: 12px 0;
+    }
+
+    .btnProcesar {
+        padding: 13px 18px;
+        font-size: 14px;
+        margin-top: 16px;
+    }
+
+    .btnProcesar ion-icon {
+        font-size: 20px;
+    }
+
+    .infoBox {
+        padding: 14px;
+    }
+
+    .infoBox ion-icon {
+        font-size: 20px;
+    }
+
+    .infoBox p {
+        font-size: 11px;
+    }
+
+    .cargando,
+    .error {
+        min-height: 400px;
+        padding: 20px;
+    }
+
+    .iconoCargando {
+        font-size: 56px;
+    }
+
+    .error ion-icon {
+        font-size: 56px;
+    }
+
+    .error h2 {
+        font-size: 20px;
+    }
+
+    .btnVolver {
+        padding: 11px 22px;
+        font-size: 14px;
+    }
 }
