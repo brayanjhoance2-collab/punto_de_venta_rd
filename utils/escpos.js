@@ -118,13 +118,14 @@ export function generarTicketESCPOS(venta, empresa, anchoLinea = 32) {
     
     builder.line('-', anchoLinea);
     
-    builder.text('Cant  Descripcion        Total').newLine();
+    builder.text('Cant  Descripcion    Total').newLine();
     builder.line('-', anchoLinea);
     
     venta.productos.forEach(producto => {
         const cant = String(producto.cantidad).padStart(4, ' ');
-        const total = formatearMoneda(producto.total).padStart(8, ' ');
-        const nombreMax = anchoLinea - 14;
+        const totalFormateado = formatearMonto(producto.total);
+        const totalPadded = totalFormateado.padStart(10, ' ');
+        const nombreMax = anchoLinea - 16;
         let nombre = producto.nombre_producto;
         
         if (nombre.length > nombreMax) {
@@ -133,9 +134,9 @@ export function generarTicketESCPOS(venta, empresa, anchoLinea = 32) {
             nombre = nombre.padEnd(nombreMax, ' ');
         }
         
-        builder.text(cant + ' ' + nombre + ' ' + total).newLine();
+        builder.text(cant + ' ' + nombre + totalPadded).newLine();
         
-        const precio = formatearMoneda(producto.precio_unitario);
+        const precio = formatearMonto(producto.precio_unitario);
         builder.text('      @' + precio).newLine();
         
         if (producto.cantidad_despachada < producto.cantidad) {
@@ -150,8 +151,9 @@ export function generarTicketESCPOS(venta, empresa, anchoLinea = 32) {
         
         venta.extras.forEach(extra => {
             const cant = String(extra.cantidad).padStart(4, ' ');
-            const total = formatearMoneda(extra.monto_total).padStart(8, ' ');
-            const nombreMax = anchoLinea - 14;
+            const totalFormateado = formatearMonto(extra.monto_total);
+            const totalPadded = totalFormateado.padStart(10, ' ');
+            const nombreMax = anchoLinea - 16;
             let nombre = extra.nombre;
             
             if (nombre.length > nombreMax) {
@@ -160,37 +162,51 @@ export function generarTicketESCPOS(venta, empresa, anchoLinea = 32) {
                 nombre = nombre.padEnd(nombreMax, ' ');
             }
             
-            builder.text(cant + ' ' + nombre + ' ' + total).newLine();
-            builder.text('      @' + formatearMoneda(extra.precio_unitario)).newLine();
+            builder.text(cant + ' ' + nombre + totalPadded).newLine();
+            builder.text('      @' + formatearMonto(extra.precio_unitario)).newLine();
         });
     }
     
     builder.line('-', anchoLinea);
     
-    const subtotal = formatearMoneda(venta.subtotal).padStart(10, ' ');
-    builder.text('Subtotal:' + subtotal).newLine();
+    const labelSubtotal = 'Subtotal:';
+    const subtotalFormateado = formatearMonto(venta.subtotal);
+    const espaciosSubtotal = anchoLinea - labelSubtotal.length - subtotalFormateado.length;
+    builder.text(labelSubtotal + ' '.repeat(espaciosSubtotal) + subtotalFormateado).newLine();
     
     if (parseFloat(venta.descuento) > 0) {
-        const descuento = formatearMoneda(venta.descuento).padStart(10, ' ');
-        builder.text('Descuento:' + descuento).newLine();
+        const labelDesc = 'Descuento:';
+        const descFormateado = formatearMonto(venta.descuento);
+        const espaciosDesc = anchoLinea - labelDesc.length - descFormateado.length;
+        builder.text(labelDesc + ' '.repeat(espaciosDesc) + descFormateado).newLine();
     }
     
-    const itbis = formatearMoneda(venta.itbis).padStart(10, ' ');
-    builder.text(empresa.impuesto_nombre + ' (' + empresa.impuesto_porcentaje + '%):' + itbis).newLine();
+    const labelItbis = empresa.impuesto_nombre + ' (' + empresa.impuesto_porcentaje + '%):';
+    const itbisFormateado = formatearMonto(venta.itbis);
+    const espaciosItbis = anchoLinea - labelItbis.length - itbisFormateado.length;
+    builder.text(labelItbis + ' '.repeat(espaciosItbis) + itbisFormateado).newLine();
     
     builder.doubleLine('=', anchoLinea);
     
     builder.bold(true).textSize(2, 2);
-    const total = formatearMoneda(venta.total).padStart(10, ' ');
-    builder.text('TOTAL:' + total).newLine();
+    const labelTotal = 'TOTAL:';
+    const totalFormateado = formatearMonto(venta.total);
+    const espaciosTotal = Math.floor((anchoLinea - labelTotal.length - totalFormateado.length) / 2);
+    builder.text(labelTotal + ' '.repeat(espaciosTotal) + totalFormateado).newLine();
     builder.textSize(1, 1).bold(false);
     
     if (venta.metodo_pago === 'efectivo' && venta.efectivo_recibido) {
         builder.line('-', anchoLinea);
-        const recibido = formatearMoneda(venta.efectivo_recibido).padStart(10, ' ');
-        builder.text('Recibido:' + recibido).newLine();
-        const cambio = formatearMoneda(venta.cambio).padStart(10, ' ');
-        builder.text('Cambio:' + cambio).newLine();
+        
+        const labelRecibido = 'Recibido:';
+        const recibidoFormateado = formatearMonto(venta.efectivo_recibido);
+        const espaciosRecibido = anchoLinea - labelRecibido.length - recibidoFormateado.length;
+        builder.text(labelRecibido + ' '.repeat(espaciosRecibido) + recibidoFormateado).newLine();
+        
+        const labelCambio = 'Cambio:';
+        const cambioFormateado = formatearMonto(venta.cambio);
+        const espaciosCambio = anchoLinea - labelCambio.length - cambioFormateado.length;
+        builder.text(labelCambio + ' '.repeat(espaciosCambio) + cambioFormateado).newLine();
     }
     
     builder.line('-', anchoLinea);
@@ -218,10 +234,10 @@ export function generarTicketESCPOS(venta, empresa, anchoLinea = 32) {
     return builder.build();
 }
 
-function formatearMoneda(monto) {
-    return new Intl.NumberFormat('es-DO', {
-        style: 'currency',
-        currency: 'DOP',
-        minimumFractionDigits: 2
-    }).format(monto);
+function formatearMonto(monto) {
+    const numero = parseFloat(monto);
+    return numero.toLocaleString('es-DO', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
 }
