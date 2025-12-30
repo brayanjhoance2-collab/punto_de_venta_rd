@@ -4,6 +4,13 @@ import { useParams, useRouter } from 'next/navigation'
 import Barcode from 'react-barcode'
 import { obtenerVentaImprimir } from './servidor'
 import estilos from './imprimir.module.css'
+import { generarTicketESCPOS } from '@/utils/escpos'
+import { 
+    conectarQZTray, 
+    obtenerImpresoras, 
+    imprimirTextoRaw, 
+    buscarImpresoraTermica 
+} from '@/utils/qzTrayService'
 
 export default function ImprimirVenta() {
     const params = useParams()
@@ -15,6 +22,10 @@ export default function ImprimirVenta() {
     const [empresa, setEmpresa] = useState(null)
     const [error, setError] = useState(null)
     const [tamañoPapel, setTamañoPapel] = useState('80mm')
+    const [impresoras, setImpresoras] = useState([])
+    const [impresoraSeleccionada, setImpresoraSeleccionada] = useState('')
+    const [qzDisponible, setQzDisponible] = useState(false)
+    const [imprimiendo, setImprimiendo] = useState(false)
     
     const [opciones, setOpciones] = useState({
         mostrarDatosEmpresa: true,
@@ -57,6 +68,7 @@ export default function ImprimirVenta() {
 
     useEffect(() => {
         cargarDatosVenta()
+        inicializarQZTray()
     }, [ventaId])
 
     useEffect(() => {
@@ -64,6 +76,33 @@ export default function ImprimirVenta() {
             document.body.setAttribute('data-print-size', tamañoPapel)
         }
     }, [tamañoPapel])
+
+    const inicializarQZTray = async () => {
+        try {
+            await conectarQZTray()
+            const listaImpresoras = await obtenerImpresoras()
+            setImpresoras(listaImpresoras)
+            
+            const impresoraGuardada = localStorage.getItem('impresoraTermica')
+            
+            if (impresoraGuardada && listaImpresoras.includes(impresoraGuardada)) {
+                setImpresoraSeleccionada(impresoraGuardada)
+            } else {
+                const termica = await buscarImpresoraTermica()
+                if (termica) {
+                    setImpresoraSeleccionada(termica)
+                    localStorage.setItem('impresoraTermica', termica)
+                } else if (listaImpresoras.length > 0) {
+                    setImpresoraSeleccionada(listaImpresoras[0])
+                }
+            }
+            
+            setQzDisponible(true)
+        } catch (error) {
+            console.error('Error inicializando QZ Tray:', error)
+            setQzDisponible(false)
+        }
+    }
 
     const cargarDatosVenta = async () => {
         try {
@@ -96,8 +135,59 @@ export default function ImprimirVenta() {
         localStorage.setItem('tamañoPapelImpresion', tamaño)
     }
 
-    const manejarImprimir = () => {
+    const cambiarImpresora = (impresora) => {
+        setImpresoraSeleccionada(impresora)
+        localStorage.setItem('impresoraTermica', impresora)
+    }
+
+    const manejarImprimirNavegador = () => {
         window.print()
+    }
+
+    const manejarImprimirTermica = async () => {
+        if (!impresoraSeleccionada) {
+            alert('Por favor selecciona una impresora')
+            return
+        }
+
+        if (!venta || !empresa) {
+            alert('No hay datos para imprimir')
+            return
+        }
+
+        setImprimiendo(true)
+
+        try {
+            const anchoLinea = tamañoPapel === '58mm' ? 32 : 42
+            const ticketESCPOS = generarTicketESCPOS(venta, empresa, anchoLinea)
+            
+            await imprimirTextoRaw(impresoraSeleccionada, ticketESCPOS)
+            
+            alert('Impresión enviada correctamente')
+        } catch (error) {
+            console.error('Error al imprimir:', error)
+            alert('Error al imprimir: ' + error.message)
+        } finally {
+            setImprimiendo(false)
+        }
+    }
+
+    const compartirTexto = () => {
+        if (!venta || !empresa) return
+
+        const anchoLinea = tamañoPapel === '58mm' ? 32 : 42
+        const ticketTexto = generarTicketESCPOS(venta, empresa, anchoLinea)
+
+        if (navigator.share) {
+            navigator.share({
+                text: ticketTexto,
+                title: 'Ticket de venta'
+            }).catch(error => {
+                console.error('Error al compartir:', error)
+            })
+        } else {
+            alert('Tu navegador no soporta la función de compartir')
+        }
     }
 
     const formatearFecha = (fecha) => {
@@ -143,6 +233,8 @@ export default function ImprimirVenta() {
         )
     }
 
+    const esAndroid = /Android/i.test(navigator.userAgent)
+
     return (
         <div className={`${estilos.contenedor} ${estilos[tema]}`}>
             <div className={`${estilos.controles} ${estilos[tema]}`}>
@@ -170,10 +262,44 @@ export default function ImprimirVenta() {
                     </div>
                 </div>
 
+                {qzDisponible && impresoras.length > 0 && (
+                    <div className={estilos.selectores}>
+                        <h3>Impresora</h3>
+                        <select 
+                            value={impresoraSeleccionada} 
+                            onChange={(e) => cambiarImpresora(e.target.value)}
+                            className={`${estilos.selectImpresora} ${estilos[tema]}`}
+                        >
+                            {impresoras.map((impresora, index) => (
+                                <option key={index} value={impresora}>
+                                    {impresora}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
+
                 <div className={estilos.botonesAccion}>
-                    <button onClick={manejarImprimir} className={estilos.btnImprimir}>
-                        Imprimir
+                    {qzDisponible && (
+                        <button 
+                            onClick={manejarImprimirTermica} 
+                            className={estilos.btnImprimir}
+                            disabled={imprimiendo}
+                        >
+                            {imprimiendo ? 'Imprimiendo...' : 'Imprimir Termica'}
+                        </button>
+                    )}
+                    
+                    {esAndroid && (
+                        <button onClick={compartirTexto} className={estilos.btnCompartir}>
+                            Compartir (Android)
+                        </button>
+                    )}
+                    
+                    <button onClick={manejarImprimirNavegador} className={estilos.btnImprimirNav}>
+                        Imprimir Normal
                     </button>
+                    
                     <button onClick={() => router.push('/admin/ventas')} className={estilos.btnCerrar}>
                         Cerrar
                     </button>
