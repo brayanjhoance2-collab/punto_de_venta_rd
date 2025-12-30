@@ -128,29 +128,29 @@ export default function NuevaVentaAdmin() {
             setMostrarDropdownProductos(false)
         }
     }
-
     const agregarProducto = (producto) => {
-        const existe = productosVenta.find(p => p.id === producto.id)
-        
-        if (existe) {
-            setProductosVenta(productosVenta.map(p => 
-                p.id === producto.id 
-                    ? { ...p, cantidad: p.cantidad + 1, cantidadDespachar: (p.cantidadDespachar || p.cantidad) + 1 }
-                    : p
-            ))
-        } else {
-            setProductosVenta([...productosVenta, {
-                ...producto,
-                cantidad: 1,
-                precio_venta_usado: parseFloat(producto.precio_venta),
-                despacho_parcial: false,
-                cantidadDespachar: 1
-            }])
-        }
-
-        setBusquedaProducto('')
-        setMostrarDropdownProductos(false)
+    const existe = productosVenta.find(p => p.id === producto.id)
+    
+    if (existe) {
+        setProductosVenta(productosVenta.map(p => 
+            p.id === producto.id 
+                ? { ...p, cantidad: p.cantidad + 1, cantidadDespachar: (p.cantidadDespachar || p.cantidad) + 1 }
+                : p
+        ))
+    } else {
+        setProductosVenta([...productosVenta, {
+            ...producto,
+            cantidad: 1,
+            precio_venta_usado: parseFloat(producto.precio_venta),
+            despacho_parcial: false,
+            cantidadDespachar: 1,
+            aplica_itbis: producto.aplica_itbis !== undefined ? producto.aplica_itbis : true // AGREGAR ESTA LÍNEA
+        }])
     }
+
+    setBusquedaProducto('')
+    setMostrarDropdownProductos(false)
+}
 
     const actualizarCantidad = (productoId, nuevaCantidad) => {
         if (nuevaCantidad <= 0) {
@@ -196,7 +196,11 @@ export default function NuevaVentaAdmin() {
             return p
         }))
     }
-
+const toggleAplicaItbis = (productoId) => {
+    setProductosVenta(productosVenta.map(p =>
+        p.id === productoId ? { ...p, aplica_itbis: !p.aplica_itbis } : p
+    ))
+}
     const actualizarCantidadDespachar = (productoId, nuevaCantidad) => {
         setProductosVenta(productosVenta.map(p => {
             if (p.id === productoId) {
@@ -638,7 +642,17 @@ export default function NuevaVentaAdmin() {
                                                 />
                                                 <span className={estilos.checkboxTexto}>Despacho Parcial</span>
                                             </label>
-
+                                            <label className={estilos.checkboxDespachoParcial}>
+        <input
+            type="checkbox"
+            checked={producto.aplica_itbis !== false}
+            onChange={() => toggleAplicaItbis(producto.id)}
+            className={estilos.checkboxInput}
+        />
+        <span className={estilos.checkboxTexto}>
+            Aplicar {datosEmpresa?.impuesto_nombre || 'ITBIS'} ({datosEmpresa?.impuesto_porcentaje || 18}%)
+        </span>
+    </label>
                                             {producto.despacho_parcial && (
                                                 <div className={estilos.controlDespacho}>
                                                     <label className={estilos.labelDespacho}>
