@@ -31,6 +31,34 @@ async function cargarQZ() {
     return qz;
 }
 
+async function cargarCertificado() {
+    try {
+        const response = await fetch('/certificates/digital-certificate.txt');
+        const cert = await response.text();
+        return cert;
+    } catch (error) {
+        console.log('No se pudo cargar certificado, continuando sin firma');
+        return null;
+    }
+}
+
+async function firmarMensaje(message) {
+    try {
+        const response = await fetch('/api/qz-sign', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message })
+        });
+        const data = await response.json();
+        return data.signature;
+    } catch (error) {
+        console.log('No se pudo firmar mensaje, continuando sin firma');
+        return null;
+    }
+}
+
 function configurarQZ() {
     if (isConfigured || !qz) return;
     
@@ -41,6 +69,28 @@ function configurarQZ() {
         
         qz.api.setPromiseType(resolver => {
             return new window.RSVP.Promise(resolver);
+        });
+        
+        qz.security.setCertificatePromise(function(resolve) {
+            cargarCertificado().then(cert => {
+                if (cert) {
+                    resolve(cert);
+                } else {
+                    resolve();
+                }
+            });
+        });
+        
+        qz.security.setSignaturePromise(function(toSign) {
+            return function(resolve) {
+                firmarMensaje(toSign).then(signature => {
+                    if (signature) {
+                        resolve(signature);
+                    } else {
+                        resolve();
+                    }
+                });
+            };
         });
         
         isConfigured = true;
@@ -58,7 +108,7 @@ export async function conectarQZTray() {
         
         if (!qz.websocket.isActive()) {
             await qz.websocket.connect({
-                retries: 3,
+                retries: 5,
                 delay: 1
             });
         }
